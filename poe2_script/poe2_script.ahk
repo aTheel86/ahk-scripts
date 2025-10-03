@@ -22,6 +22,15 @@ SetWorkingDir A_InitialWorkingDir ;Forces the script to use the folder it was in
 !K::ExitApp ; Kill the app (useful if mouse gets locked or program is not responding)
 #SuspendExempt false
 
+;Timed_CheckPlagueReady()
+;Timed_ES_IsHalf_HeartBeatWarning()
+Timed_Life_Flask_Low_Warning()
+;Timed_Pot_OnDamageTaken()
+Timed_Emergency_LifePot()
+
+/*
+ES_PotOnDamageTaken := IniRead(ConfigFile, "Settings", "ES_PotOnDamageTakenIfFreshFlask")
+
 if (IniRead(ConfigFile, "Settings", "CheckForPlagueReady") == "true")
 {
 	Timed_CheckPlagueReady()
@@ -36,4 +45,4 @@ if (IniRead(ConfigFile, "Settings", "ES_AutoLifePot") == "true")
 {
 	Timed_ESAutoLifePot()
 }
-
+*/
