@@ -9,7 +9,7 @@ class CommandInfo {
 
 		try
 		{
-			Hotkey(this.HotKeyName, this.DoNothing)
+			Hotkey(this.HotKeyName, DoNothing)
 		}
 		catch ValueError
 		{
@@ -39,8 +39,5 @@ class CommandInfo {
 		{
 			Send this.InputCommand
 		}
-	}
-
-	DoNothing(*) {
 	}
 }

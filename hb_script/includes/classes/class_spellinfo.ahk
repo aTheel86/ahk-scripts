@@ -15,7 +15,7 @@ class SpellInfo {
 		this.SpellEffectImg := eImg
 		this.SpellEffectDuration := eDuration
 
-		Hotkey(this.HotKeyName, this.CastSpell.Bind(this)) ; Bind the hotkey so whenever it is struck it calls the CastSPell function
+		Hotkey(this.HotKeyName, this.CastSpell.Bind(this), "ON") ; Bind the hotkey so whenever it is struck it calls the CastSPell function
     }
 
 	CastSpell(*) {
@@ -36,7 +36,7 @@ class SpellInfo {
 				Send("{RButton up}")
 			}
 
-			Send this.MagicPage ; Open Magic menu tab
+			Send("^{" this.MagicPage "}") ; Open Magic menu tab ^{#}
 			Sleep 10
 			MouseClick("L", CtPixel(SpellHorizontalPos, "X"), CtPixel(this.YCoord, "Y"),, 0)
 			Sleep 10

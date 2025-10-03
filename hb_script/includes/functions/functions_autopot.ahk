@@ -1,19 +1,8 @@
-Global LowHPPos := [CtPixel(13.5, "X"), CtPixel(94.1, "Y")]
-Global MidHPPos := [CtPixel(13.0 + (12.5 * (AutoPotLifeAtPercent * 0.01)), "X"), CtPixel(93.3, "Y")] 
-Global HighHPPos := [CtPixel(25.0, "X"), CtPixel(94.1, "Y")]
-Global LowManaPos := [CtPixel(13.5, "X"), CtPixel(97.8, "Y")]
-Global MidManaPos := [CtPixel(13.0 + (12.5 * (AutoPotManaAtPercent * 0.01)), "X"), CtPixel(97.8, "Y")]
-Global HighManaPos := [CtPixel(25.0, "X"), CtPixel(97.8, "Y")]
-
 ; 12.5 is roughly the horizontal % of screen the healthbar takes up, 13% is where it starts, 25.5% is where it ends
 ; 93.3 may need tweaking depending on res (we can't use the middle value as "poisoned" status can get in the way!)
 
-LifeRed := "0xd83c2b"
-ManaBlue := "0x3e45d8"
-EmptyGrey := "0x5e5b58"
-
 AutoPot() {
-	Global bTryHPPotting, bTryManaPotting
+	Global bTryHPPotting, bTryManaPotting, LifeRed, ManaBlue, EmptyGrey
 
 	static LowHPDuration := 0
 	static LowManaDuration := 0

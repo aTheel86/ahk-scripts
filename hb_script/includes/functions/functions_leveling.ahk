@@ -33,8 +33,8 @@ ToggleMagicLeveling(*)
 	if (bIsLvling) {
 		MouseMove(400, 290)
 		Sleep 100
-		MagicMissileSpell := SpellInfo("MagicMissile", "^{1}", "86", "!F1")
-		CreateFoodSpell := SpellInfo("CreateFood", "^{1}", "116", "!F1")
+		MagicMissileSpell := SpellInfo("MagicMissile", 1, 35.67, "!F1")
+		CreateFoodSpell := SpellInfo("CreateFood", 1, 41.5, "!F1")
 
 		MagicLevelingFuncBound := MagicLeveling.Bind(400, 290, MagicMissileSpell, CreateFoodSpell)
 		SetTimer(MagicLevelingFuncBound, 100)
@@ -179,7 +179,7 @@ FindAndMove(distance := 3) {
     }
 
 	WinSetTransColor(TempGui.BackColor " 200", TempGui)
-    TempGui.Show("x0 y0 w" ScreenResolution[1] " h" ScreenResolution[2] " NA NoActivate") ; Show the GUI without activating it
+    TempGui.Show("x0 y0 w" ScreenResX " h" ScreenResY " NA NoActivate") ; Show the GUI without activating it
 
     ; Check each square for pixel changes
     for coord in coords {
@@ -424,7 +424,7 @@ BeginBasicLeveling()
     OKButton.OnEvent("Click", (*) => BasicLeveling(myGui, EditBox.Value))
 
     ; Show the GUI
-    myGui.Show("x" ScreenResolution[1] / 2 " y" ScreenResolution[2] / 2 " NA NoActivate")
+    myGui.Show("x" ScreenResX / 2 " y" ScreenResY / 2 " NA NoActivate")
     
     ; Ensure the window stays on top and non-interactive
     WinSetAlwaysOnTop(1, myGui.Hwnd)

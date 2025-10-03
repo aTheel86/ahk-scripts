@@ -60,7 +60,7 @@ ActivateAutoTradeRep() {
     OKButton.OnEvent("Click", (*) => BeginTradeButtonSubmit(myGui, UpDownButton))
 
     ; Show the GUI
-    myGui.Show("x" ScreenResolution[1] / 2 " y" ScreenResolution[2] / 2 " NA NoActivate")
+    myGui.Show("x" ScreenResX / 2 " y" ScreenResY / 2 " NA NoActivate")
     
     ; Ensure the window stays on top and non-interactive
     WinSetAlwaysOnTop(1, myGui.Hwnd)
@@ -153,6 +153,11 @@ AutoTradeRep(*) {
             RepButtonInst.StartTiming()
         }
     }
+}
+
+SendTradeRepMessage() {
+    RandomTradeRepMessage := GetRandomTradeRep()
+    SendTextMessage("%" RandomTradeRepMessage)
 }
 
 GetRandomTradeRep() {

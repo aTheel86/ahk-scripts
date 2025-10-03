@@ -5,60 +5,53 @@ if (IniRead(ConfigFile, "Settings", "UseAutoPotting") == "true")
 	SetTimer(AutoPot, 200)
 }
 
+/*
 if (IniRead(ConfigFile, "Settings", "UnbindKeys") == "true")
 {
-	UnbindKeys := HotkeyUnbindClass() ; Obj instance that unbinds a bunch of keys by setting hotkeys to do nothing
+    ; Old, was useful for Helbreath Nemesis
+	;UnbindKeys := HotkeyUnbindClass() ; Obj instance that unbinds a bunch of keys by setting hotkeys to do nothing
 }
+*/
 
 ; ══════════════════════════════════════════════════════  Load From Config ══════════════════════════════════════════════════════ ;
 
-LoadSpellsFromConfig() {
-    ; Read the entire "Spells" section from the config file
-    Section := IniRead(ConfigFile, "Spells")
+LoadSpellsFromConfig(cfgFile) {
+    try {
+        SpellBindsList := IniRead(cfgFile, "SpellBinds")
+    } catch {
+        MsgBox("Error: 'SpellBinds' section not found in " cfgFile)
+        return
+    }
 
-    if (Section) {
-        ; Process each line in the section
-        Loop Parse, Section, "`n", "`r" {
-            ; Skip comment lines and empty lines
-            if (A_LoopField == "" || SubStr(A_LoopField, 1, 1) = ";") {
-                Continue
-            }
+    Loop Parse, SpellBindsList, "`n", "`r" {
+        if (A_LoopField == "" || SubStr(A_LoopField, 1, 1) = ";")
+            continue
 
-            ; Split the line into its components using the pipe (|) as the delimiter
-            SplitLine := StrSplit(A_LoopField, "|")
+        SpellBind := StrSplit(A_LoopField, "=")
 
-            ; Remove empty elements caused by multiple pipes and trim each component
-            CleanedLine := []
-            for i, val in SplitLine {
-                CleanedVal := Trim(val)
-                if (CleanedVal != "") {
-                    CleanedLine.Push(CleanedVal)
-                }
-            }
-
-            ; Ensure the line has the expected number of components
-            if (CleanedLine.Length < 4) {
-                Continue ; Skip invalid lines
-            }
-
-            ; Extract components from the cleaned line
-            Hk := CleanedLine[1]
-            SpellName := CleanedLine[2]
-            SpellCircle := CleanedLine[3]
-            yCoord := CleanedLine[4]
-
-            ; Initialize optional variables with default values
-            Img := (CleanedLine.Length >= 5) ? CleanedLine[5] : ""  ; Default value for image
-            Dur := (CleanedLine.Length >= 6) ? CleanedLine[6] : ""  ; Default value for duration
-
-            ; Debugging output to show variable assignments
-            ;MsgBox("Hotkey: " Hk "`nSpell Name: " SpellName "`nSpell Circle: " SpellCircle "`nY Coord: " yCoord "`nImage Path: " Img "`nDuration: " Dur)
-
-            ; Create a new instance of the SpellInfo class with the extracted components
-            SpellInstance := SpellInfo(SpellName, SpellCircle, yCoord, Hk, Img, Dur)
+        if (SpellBind.Length < 2) {
+            MsgBox "Error in LoadSpellsFromConfig. An equals is missing from a line under SpellBinds."
+            continue
         }
-    } else {
-        MsgBox("Error: 'Spells' section not found in the configuration file.")
+
+        Hk        := SpellBind[1]
+        SpellName := SpellBind[2]
+
+        if (SpellName = "") {
+            Hk := RegExReplace(Trim(SpellBind[1]), "[`r`n]")
+            if (Hk != "" && Hk ~= "^[a-zA-Z0-9`~!+#^]+$") {
+                Hotkey(Hk, DoNothing) ; First make sure we assign the Hotkey, as it'll flag an error if one doesn't exist in the line below
+                Hotkey(Hk, "Off") ; For some reason this must be done, the DoNothing is not good enough
+            }
+            continue
+        }
+
+        SpellCircle := IniRead(cfgFile, SpellName, "Circle", "")
+        yCoord      := IniRead(cfgFile, SpellName, "yCoord", "")
+        Img         := IniRead(cfgFile, SpellName, "EffectImg", "")
+        Dur         := IniRead(cfgFile, SpellName, "EffectDur", "")
+
+        SpellInstance := SpellInfo(SpellName, SpellCircle, yCoord, Hk, Img, Dur)
     }
 }
 
@@ -81,7 +74,7 @@ LoadCommandsFromConfig(SectionName) {
 	}
 }
 
-LoadSpellsFromConfig()
+LoadSpellsFromConfig(SpellsCfgFile)
 LoadCommandsFromConfig("Script")
 LoadCommandsFromConfig("Character")
 LoadCommandsFromConfig("Leveling")

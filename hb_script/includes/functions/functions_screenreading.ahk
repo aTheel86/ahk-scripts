@@ -96,7 +96,7 @@ ReadCoordinates() {
 
                 ; Now white it out so we don't find it again!
                 ScreenReadGui.Add("Text", "x" X " y" Y, "0")
-                ScreenReadGui.Show("x0 y0 w" ScreenResolution[1] " h" ScreenResolution[2] " NA NoActivate")
+                ScreenReadGui.Show("x0 y0 w" ScreenResX " h" ScreenResY " NA NoActivate")
             }
         }
     }

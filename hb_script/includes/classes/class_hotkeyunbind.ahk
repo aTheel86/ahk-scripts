@@ -11,10 +11,7 @@ class HotkeyUnbindClass {
         ; Assign hotkeys using a loop
         for key in this.keys
 		{
-			Hotkey(key, this.DoNothing.Bind(this))
+			Hotkey(key, DoNothing)
 		}
     }
-
-	DoNothing(*) {
-	}
 }

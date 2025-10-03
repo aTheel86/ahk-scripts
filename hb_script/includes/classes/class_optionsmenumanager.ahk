@@ -56,11 +56,9 @@ class OptionsMenuManager {
     DestroyOptionsGUI() {
 		global activeMenuManager
 
-        if IsObject(this.optionsGui)
-        {
+        if this.HasProp("optionsGui") && IsObject(this.optionsGui) {
             this.optionsGui.Destroy()
-            this.optionsGui := ""
-            Sleep 50
+            this.optionsGui := ""  ; reset the property
         }
 
 		activeMenuManager := ""

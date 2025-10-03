@@ -9,8 +9,8 @@ class NodeInfo {
     Value := ""
     StartX := 0
     StartY := 0
-    EndX := ScreenResolution[1]
-    EndY := ScreenResolution[2]
+    EndX := ScreenResX
+    EndY := ScreenResY
     
     ConnectedNodes := [] ; Array of NodeTitles that this node can navigate to
 

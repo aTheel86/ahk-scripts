@@ -1,5 +1,11 @@
+; Directory locations
+Global ConfigDir := A_ScriptDir "\configs\user"
+Global SpellBindsDir := A_ScriptDir "\configs\spellbinds"
+
 ; Script config
-Global ConfigFile := "hb_script_config_andrew.ini"
+Global LauncherConfig := A_ScriptDir "\configs\launcher_config.ini"  ; launcher INI
+Global ConfigFile := ConfigDir "\" IniRead(LauncherConfig, "Settings", "UserConfigFile")
+Global SpellsCfgFile := SpellBindsDir "\" IniRead(ConfigFile, "Configs", "SpellsCfgFile")
 
 ; GUI variables
 Global gGUI := Gui("+AlwaysOnTop +ToolWindow -Caption E0x8000000") ;Disabled
@@ -21,9 +27,10 @@ Global SpellHorizontalPos := 62.5
 Global bAutoTradeRepping := false 
 
 ; From ConfigFile
-Global ScreenResolution := StrSplit(IniRead(ConfigFile, "Coords", "ScreenResolution"), ",")
-Global CenterX := ScreenResolution[1] / 2
-Global CenterY := ScreenResolution[2] / 2
+Global ScreenResX := IniRead(ConfigFile, "Coords", "ScreenResolutionX")
+Global ScreenResY := IniRead(ConfigFile, "Coords", "ScreenResolutionY")
+Global CenterX := ScreenResX / 2
+Global CenterY := ScreenResY / 2
 
 ; Calculate pixel offsets for square positions
 GridSquaresX := 25
@@ -43,10 +50,19 @@ directions.Left := [CenterX + XOffsets[1], CenterY + YOffsets[2]]
 directions.Right := [CenterX + XOffsets[3], CenterY + YOffsets[2]]
 
 ; Global AutoPot()
-Global bTryHPPotting := true
-Global bTryManaPotting := true
 Global AutoPotLifeAtPercent := IniRead(ConfigFile, "AutoPot", "AutoPotLifeAtPercent")
 Global AutoPotManaAtPercent := IniRead(ConfigFile, "AutoPot", "AutoPotManaAtPercent")
+Global LowHPPos := [CtPixel(13.5, "X"), CtPixel(94.1, "Y")]
+Global MidHPPos := [CtPixel(13.0 + (12.5 * (AutoPotLifeAtPercent * 0.01)), "X"), CtPixel(93.3, "Y")] 
+Global HighHPPos := [CtPixel(25.0, "X"), CtPixel(94.1, "Y")]
+Global LowManaPos := [CtPixel(13.5, "X"), CtPixel(97.8, "Y")]
+Global MidManaPos := [CtPixel(13.0 + (12.5 * (AutoPotManaAtPercent * 0.01)), "X"), CtPixel(97.8, "Y")]
+Global HighManaPos := [CtPixel(25.0, "X"), CtPixel(97.8, "Y")]
+Global LifeRed := "0xd83c2b"
+Global ManaBlue := "0x3e45d8"
+Global EmptyGrey := "0x5e5b58"
+Global bTryHPPotting := true ; Not to be confused with UseAutoPotting used in config file
+Global bTryManaPotting := true
 
 ; Define the global array of inventory slot positions
 Global InventorySlotPos := []  ; Initialize as an empty array

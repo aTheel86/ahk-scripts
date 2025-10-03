@@ -8,11 +8,13 @@ SendMode "Event"
 SetMouseDelay 30 ; 10 is default (this adds more delay to help mouseclick commands to work better)
 SetDefaultMouseSpeed 4 ; 2 is default 
 
-#Include includes\global_variables.ahk
+DoNothing(*) => { } ; A function used when a method is required, but no action is needed.
 
-; TODO screen vs client only matters if windowed, but windowed isn't even supported anymore
-; Need to put in requirements for automated stuff (like neutral attack mode enabled)
-; Start cleaning up and perfecting, no more features for awhile
+#Include includes\global_variables.ahk
+#Include includes\global_functions.ahk
+
+; Run this before we force WinWaitActive
+#Include includes\functions\functions_launcher.ahk
 
 ; AHK initiatives
 WinWaitActive WinTitle ;Script waits until HB window is active/front
@@ -20,7 +22,6 @@ HotIfWinActive WinTitle ;Attempt to make Hotkeys only work inside the HB window
 SetWorkingDir A_InitialWorkingDir ;Forces the script to use the folder it was initially launched from as its working directory
 
 #Include includes\load_from_ini.ahk
-#Include includes\functions\functions_common.ahk
 #Include includes\classes\class_GUIManager.ahk
 #Include includes\classes\class_commandinfo.ahk
 #Include includes\classes\class_hotkeyunbind.ahk
@@ -37,6 +38,8 @@ SetWorkingDir A_InitialWorkingDir ;Forces the script to use the folder it was in
 #Include includes\functions\functions_farming.ahk
 #Include includes\functions\functions_messages.ahk
 #Include includes\functions\functions_traderep.ahk
+#Include includes\functions\functions_spellbinder.ahk
+
 
 ; GUI (cannot reside in global_variables as thes require all includes)
 Global HUD := GUIManager()
@@ -90,7 +93,7 @@ RemoveToolTip(*) {
 	Tooltip ""
 }
 
-ToggleSuspendScript(*) => Send("{F1}") ; unused, consider removing?
+;ToggleSuspendScript(*) => Send("{F1}") ; unused, consider removing?
 SuspendScript(*) => Suspend(true)
 ResumeScript(*) => Suspend(false)
 
@@ -112,7 +115,7 @@ CheckWindowState() {
 	{
 		bMinimizedTipOpen := false
 		;gGUI.Maximize()
-		gGUI.Show("x0 y0 w" ScreenResolution[1] " h" ScreenResolution[2] " NA NoActivate")
+		gGUI.Show("x0 y0 w" ScreenResX " h" ScreenResY " NA NoActivate")
 		WinSetAlwaysOnTop(1, gGUI.Hwnd)          
 	} 
 	else if (WinState == -1)  ; Minimized state
@@ -152,8 +155,6 @@ ToggleDebugMode(*)
 	bDebugMode := !bDebugMode
 }
 
-DoNothing(*) => { } ; A placeholder function used when a method is required, but no action is needed.
-
 OptionsMenu(optionNames, optionFunctionNames) {
     global activeMenuManager
 
@@ -169,6 +170,7 @@ OptionsMenu(optionNames, optionFunctionNames) {
 
 ToggleMap(*) => Send("^m")
 OpenBag(*) => Send("{f6}")
+OpenCharacter(*) => Send("{f5}")
 ToggleRunWalk(*) => Send("^r")
 OpenOptions(*) => Send("{F12}")
 
@@ -212,8 +214,8 @@ DisableShiftPickup() {
 }
 
 MainMenu(*) {
-    OptionsMenu(["1. Leveling", "2. Tools"],
-                ["LevelingMenu", "UncommonCommands"])
+    OptionsMenu(["1. Leveling", "2. Tools", "3. SpellBinding"],
+                ["LevelingMenu", "UncommonCommands", "SpellBindTools"])
 }
 
 RequestMenu(*) {
@@ -227,13 +229,24 @@ LevelingMenu(*) {
 }
 
 UncommonCommands(*) {
-    OptionsMenu(["1. Toggle Debug", "2. Eat Food", "3. Sell Items"],
-                ["ToggleDebugMode", "EatFood", "SellStackedItems"])
+    OptionsMenu(["1. Toggle Debug", "2. Eat Food", "3. Sell Items", "4. Type PW"],
+                ["ToggleDebugMode", "EatFood", "SellStackedItems", "TypePassword"])
 }
 
 ReputationMenu(*) {
-	OptionsMenu(["1. TradeRep", "2. Rep Player", "3. AFK Rep"],
-				["traderep", "rep+ menu", "ActivateAutoTradeRep"])
+	OptionsMenu(["1. Trade Rep Message", "2. Check Rep", "3. AFK Rep"],
+				["SendTradeRepMessage", "CheckRepMessage", "ActivateAutoTradeRep"])
+}
+
+SpellBindTools(*) {
+	OptionsMenu(["1. Spell Binder", "2. Spell Binds", "3. Choose Config"],
+				["OpenSpellBinder", "ListSpells", "ChooseConfig"])
+}
+
+; Type account password for ease of login
+TypePassword(*)
+{
+	SendText(IniRead(ConfigFile, "Account", "Password"))
 }
 
 ; Sell/deposit 12 items (use by putting inventory over sell/deposit window at the bottom, hold mouse over the items you want to deposit alt+s
