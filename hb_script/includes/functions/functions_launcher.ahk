@@ -13,7 +13,7 @@ ChangeConfig(newFile) {
     IniWrite(FileNameOnly, LauncherConfig, "Settings", "UserConfigFile")
 
     ; Reload spells immediately (is this needed???)
-    ;LoadSpellsFromConfig(SpellsCfgFile)
+    ;LoadSpellsFromConfig(ControlCfgFile)
 }
 
 LaunchSelectConfig() {

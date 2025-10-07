@@ -1,5 +1,4 @@
 ; ══════════════════════════════════════════════════════  Optional Systems ══════════════════════════════════════════════════════ ;
-
 if (IniRead(ConfigFile, "Settings", "UseAutoPotting") == "true")
 {
 	SetTimer(AutoPot, 200)
@@ -56,28 +55,34 @@ LoadSpellsFromConfig(cfgFile) {
 }
 
 LoadCommandsFromConfig(SectionName) {
-	Section := IniRead(ConfigFile, SectionName)
+    Section := IniRead(ControlFile, SectionName)
 
-	if (Section)
-	{
-		Loop Parse, Section, "`n", "`r"
-		{
-			; Split the line into its components using comma as delimiter
-			SplitLine := StrSplit(A_LoopField, ",")
+    if (Section) {
+        Loop Parse, Section, "`n", "`r" {
+            line := Trim(A_LoopField)
 
-			; Extract individual components (1 is unused as it only helps the user know what they are reassigning)
-			Command := SplitLine[2]
-			Key := SplitLine[3]
+            ; Skip empty lines or full-line comments
+            if (line = "" || SubStr(line, 1, 1) = ";")
+                continue
 
-			CommandInstance := CommandInfo(Key, Command)
-		}
-	}
+            ; Strip inline comments
+            pos := InStr(line, ";")
+            if (pos)
+                line := Trim(SubStr(line, 1, pos - 1))  ; Keep only part before the comment
+
+            ; Split key=value
+            SplitLine := StrSplit(line, "=")
+            if (SplitLine.Length < 2)
+                continue  ; skip malformed lines
+
+            Key := Trim(SplitLine[1])
+            Command := Trim(SplitLine[2])
+
+            CommandInstance := CommandInfo(Key, Command)
+        }
+    }
 }
 
-LoadSpellsFromConfig(SpellsCfgFile)
-LoadCommandsFromConfig("Script")
-LoadCommandsFromConfig("Character")
-LoadCommandsFromConfig("Leveling")
-LoadCommandsFromConfig("Messages")
-LoadCommandsFromConfig("Inventory")
-LoadCommandsFromConfig("Other")
+
+LoadSpellsFromConfig(ControlFile)
+LoadCommandsFromConfig("Commands")

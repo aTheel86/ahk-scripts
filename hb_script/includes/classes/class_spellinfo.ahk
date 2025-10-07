@@ -19,29 +19,37 @@ class SpellInfo {
     }
 
 	CastSpell(*) {
-		Global CastingEffectSpell
+		Global CastingEffectSpell, LastCastspell
 
 		if WinActive(WinTitle) ; This supposedly stops the hotkey from working outside of the HB client
 		{
-			BlockInput "MouseMove"
-			MouseGetPos &begin_x, &begin_y ; Get the position of the mouse
-
-			if (GetKeyState("LButton", "P")) ; if we are holding down m1, like when we are chasing someone, the cast should interrupt the run so the cast doesn't fail
-			{
-				Send("{LButton up}")
+			if (this.SpellName == LastCastspell) {
+				Send "{F4}"
 			}
+			else {
 
-			if (GetKeyState("RButton", "P")) ; if we are holding down m1, like when we are chasing someone, the cast should interrupt the run so the cast doesn't fail
-			{
-				Send("{RButton up}")
+				BlockInput "MouseMove"
+				MouseGetPos &begin_x, &begin_y ; Get the position of the mouse
+
+				if (GetKeyState("LButton", "P")) ; if we are holding down m1, like when we are chasing someone, the cast should interrupt the run so the cast doesn't fail
+				{
+					Send("{LButton up}")
+				}
+
+				if (GetKeyState("RButton", "P")) ; if we are holding down m1, like when we are chasing someone, the cast should interrupt the run so the cast doesn't fail
+				{
+					Send("{RButton up}")
+				}
+
+				Send("^{" this.MagicPage "}") ; Open Magic menu tab ^{#}
+				Sleep 10
+				MouseClick("L", CtPixel(SpellHorizontalPos, "X"), CtPixel(this.YCoord, "Y"),, 0)
+				Sleep 10
+				MouseMove begin_x, begin_y, 0 ; Move mouse back to original position
+				BlockInput "MouseMoveOff"
+
+				LastCastspell := this.SpellName
 			}
-
-			Send("^{" this.MagicPage "}") ; Open Magic menu tab ^{#}
-			Sleep 10
-			MouseClick("L", CtPixel(SpellHorizontalPos, "X"), CtPixel(this.YCoord, "Y"),, 0)
-			Sleep 10
-			MouseMove begin_x, begin_y, 0 ; Move mouse back to original position
-			BlockInput "MouseMoveOff"
 
 			if (this.SpellEffectDuration != "")
 			{	

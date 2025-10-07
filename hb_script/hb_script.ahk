@@ -1,5 +1,10 @@
 ﻿#Requires AutoHotkey v2.0
 
+/* Issues:
+Had idea to look and remember the last cast spell and hit F4 if its the same one!
+Need to fix cfgs
+*/
+
 ; AHK settings
 Persistent
 CoordMode "Mouse", "Window" ; Client / Window / Screen (Client might be best)
@@ -40,7 +45,6 @@ SetWorkingDir A_InitialWorkingDir ;Forces the script to use the folder it was in
 #Include includes\functions\functions_traderep.ahk
 #Include includes\functions\functions_spellbinder.ahk
 
-
 ; GUI (cannot reside in global_variables as thes require all includes)
 Global HUD := GUIManager()
 Global RepButtonInst := RepButton(60) ; in minutes
@@ -50,17 +54,6 @@ Global RepButtonInst := RepButton(60) ; in minutes
 
 ; F1 should only be used to suspend or unsuspend the script, the * designates this (aka it prevents the HB F1 help menu from popping up)
 *F1:: A_IsSuspended ? Suspend(false) : Suspend(true)
-
-~Escape::
-{
-	global stopFlag, activeMenuManager
-
-	stopFlag := true
-
-    if (activeMenuManager != "") {
-        activeMenuManager.DestroyOptionsGUI()
-    }	
-}
 
 ~LButton:: ; ~ means the button should behave as normal in addition to this code
 {
@@ -91,6 +84,17 @@ Global RepButtonInst := RepButton(60) ; in minutes
 
 RemoveToolTip(*) {
 	Tooltip ""
+}
+
+EscapeGUI(*)
+{
+	global stopFlag, activeMenuManager
+
+	stopFlag := true
+
+    if (activeMenuManager != "") {
+        activeMenuManager.DestroyOptionsGUI()
+    }	
 }
 
 ;ToggleSuspendScript(*) => Send("{F1}") ; unused, consider removing?
@@ -173,6 +177,7 @@ OpenBag(*) => Send("{f6}")
 OpenCharacter(*) => Send("{f5}")
 ToggleRunWalk(*) => Send("^r")
 OpenOptions(*) => Send("{F12}")
+ItemActivation(*) => Send("{PgUp}")
 
 Input_Button := NodeInfo("Input_Button", "images\node_images\Input_Button.png", "images\node_images\Input_Button_Clicked.png",, [2.6,1.3])
 Shift_Pickup := NodeInfo("Shift_Pickup", "images\node_images\Shift_To_Pickup.png",,, [-2,0.8])
@@ -239,8 +244,8 @@ ReputationMenu(*) {
 }
 
 SpellBindTools(*) {
-	OptionsMenu(["1. Spell Binder", "2. Spell Binds", "3. Choose Config"],
-				["OpenSpellBinder", "ListSpells", "ChooseConfig"])
+	OptionsMenu(["1. Spell Binder", "2. Spell Binds", "3. Choose Config", "4. "],
+				["OpenSpellBinder", "ListSpells", "ChooseConfig", ""])
 }
 
 ; Type account password for ease of login

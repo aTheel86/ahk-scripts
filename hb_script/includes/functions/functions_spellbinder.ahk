@@ -1,79 +1,81 @@
 global SpellBinderGUI
 
-ChangeSpellConfig(newFile) {
-    global SpellsCfgFile
+UpdateSpells(newFile) {
+    global ConfigFile
 
     ; Store just the filename
     FileNameOnly := RegExReplace(newFile, "^.*\\", "")
 
     ; Update global
-    SpellsCfgFile := SpellBindsDir "\" FileNameOnly
+    ConfigFile := ConfigDir "\" FileNameOnly
 
     ; Persist choice in UserSettings.ini
-    IniWrite(FileNameOnly, ConfigFile, "Configs", "SpellsCfgFile")
+    IniWrite(FileNameOnly, ConfigFile, "Configs", "ControlFile")
 
     ; Reload spells immediately
-    LoadSpellsFromConfig(SpellsCfgFile)
+    LoadSpellsFromConfig(ControlFile)
 }
 
 OpenSpellBinder() {
     global SpellBinderGUI
 
     ; --- Create independent GUI ---
-    SpellBinderGUI := Gui("+AlwaysOnTop", "Spell Binder")
-    SpellBinderGUI.SetFont("s10","Segoe UI")
+    SpellBinderGUI := Gui("+AlwaysOnTop +ToolWindow -Caption", "Overlay")
+    SpellBinderGUI.SetFont("s7","Segoe UI")
 
     ; --- Add a background color ---
-    SpellBinderGUI.Add("Text", "w300 h200 Background cFFFFFF")  ; white background
+    SpellBinderGUI.Add("Text", "w400 h200 Background cFFFFFF")  ; white background
 
     ; --- Add some controls ---
-    SpellBinderGUI.Add("Text", "x10 y5", "Spell Name: ")
-    editSpell := SpellBinderGUI.Add("Edit", "x120 y5 w150 vSpellName")
+    SpellBinderGUI.Add("Text", "x5 y10", "Spell Name: ")
+    editSpell := SpellBinderGUI.Add("Edit", "x70 y5 w350 vSpellName")
 
-    SpellBinderGUI.Add("Text", "x10 y50", "yCoord: ")
-    editY := SpellBinderGUI.Add("Edit", "x120 y50 w150 vYCoord")
+    SpellBinderGUI.Add("Text", "x5 y50", "yCoord: ")
+    editY := SpellBinderGUI.Add("Edit", "x70 y45 w350 vYCoord")
+    editY.Value := "MouseY position for spell shown at bottom"
 
-    MouseGetPos(&MouseX, &MouseY)
-    editY.Value := CtPercent(MouseY, "Y")  ; <-- your function returns Y position
+    SpellBinderGUI.Add("Text", "x5 y75", "Magic Circle: ")
+    editCircle := SpellBinderGUI.Add("Edit", "x70 y70 w350 vMagicCircle")
 
-    SpellBinderGUI.Add("Text", "x10 y75", "Magic Circle: ")
-    editCircle := SpellBinderGUI.Add("Edit", "x120 y75 w150 vMagicCircle")
-
-    SpellBinderGUI.Add("Text", "x10 y100", "Hotkey: ")
-    hotkeyCtrl := SpellBinderGUI.Add("Hotkey", "x120 y100 w150 vChosenHotkey")
+    SpellBinderGUI.Add("Text", "x5 y100", "Hotkey: ")
+    hotkeyCtrl := SpellBinderGUI.Add("Hotkey", "x70 y95 w350 vChosenHotkey")
 
     ; --- Save button ---
-    btnSave := SpellBinderGUI.Add("Button", "x10 y150 w100 h25", "Save")
+    btnSave := SpellBinderGUI.Add("Button", "x5 y150 w100 h25", "Save")
     btnSave.OnEvent("Click", (*) => SaveSpell(editSpell, editY, editCircle, hotkeyCtrl))
 
+    ; --- Cancel button ---
+    btnSave := SpellBinderGUI.Add("Button", "x160 y150 w100 h25", "Cancel")
+    btnSave.OnEvent("Click", (*) => SpellBinderGUI.Destroy())
+
     ; --- Show GUI ---
-    SpellBinderGUI.Show("NA")
+    SpellBinderGUI.Show("x50 y100 NoActivate")
 }
 
 SaveSpell(editSpell, editY, editCircle, hotkeyCtrl) {
-    global SpellBinderGUI, SpellsCfgFile
+    global SpellBinderGUI, ControlFile
     ; --- Get values from controls ---
     SpellName := editSpell.Value
     YCoord := editY.Value
     Circle := editCircle.Value
     Hotkey := hotkeyCtrl.Value
 
-    IniWrite(YCoord, SpellsCfgFile, SpellName, "yCoord")
-    IniWrite(Circle, SpellsCfgFile, SpellName, "Circle")
-    IniWrite(SpellName, SpellsCfgFile, "SpellBinds", Hotkey)
+    IniWrite(YCoord, ControlFile, SpellName, "yCoord")
+    IniWrite(Circle, ControlFile, SpellName, "Circle")
+    IniWrite(SpellName, ControlFile, "SpellBinds", Hotkey)
 
     MsgBox("Saved spell: " SpellName)
 
     ; --- Close GUI ---
     SpellBinderGUI.Destroy()
-    LoadSpellsFromConfig(SpellsCfgFile)
+    LoadSpellsFromConfig(ControlFile)
 }
 
 ListSpells() {
-    global SpellsCfgFile
+    global ControlFile
 
     ; Read the entire [SpellBinds] section
-    try hotkeyMap := IniRead(SpellsCfgFile, "SpellBinds")
+    try hotkeyMap := IniRead(ControlFile, "SpellBinds")
     catch {
         MsgBox("No SpellBinds section found in config.")
         return
@@ -92,10 +94,10 @@ ListSpells() {
         spellName := parts[2]     ; right side (Paralyze, Berserk…)
 
         ; Read that spell’s details
-        circle    := IniRead(SpellsCfgFile, spellName, "Circle", "N/A")
-        yCoord    := IniRead(SpellsCfgFile, spellName, "yCoord", "N/A")
-        img       := IniRead(SpellsCfgFile, spellName, "EffectImg", "")
-        duration  := IniRead(SpellsCfgFile, spellName, "EffectDur", "")
+        circle    := IniRead(ControlFile, spellName, "Circle", "N/A")
+        yCoord    := IniRead(ControlFile, spellName, "yCoord", "N/A")
+        img       := IniRead(ControlFile, spellName, "EffectImg", "")
+        duration  := IniRead(ControlFile, spellName, "EffectDur", "")
 
         ; Build formatted entry
         spellList .= (hotkey " → " spellName "`n")
@@ -140,7 +142,7 @@ ChooseConfig() {
     ConfigFiles := Map()   ; maps filename -> full path
     displayList := []
 
-    Loop Files, SpellBindsDir "\*.ini" {
+    Loop Files, ControlDir "\*.ini" {
         ConfigFiles[A_LoopFileName] := A_LoopFileFullPath
         displayList.Push(A_LoopFileName)
     }
@@ -153,9 +155,9 @@ ChooseConfig() {
     ddl := SpellBinderGUI.Add("DropDownList", "w250 vChosenCfg", displayList)
 
     ; --- preselect currently active config ---
-    if (SpellsCfgFile) {
+    if (ControlFile) {
         ; strip path -> filename only
-        ActiveFile := RegExReplace(SpellsCfgFile, "^.*\\", "")
+        ActiveFile := RegExReplace(ControlFile, "^.*\\", "")
         ; find its position in the list
         for idx, name in displayList {
             if (name = ActiveFile) {
@@ -167,7 +169,7 @@ ChooseConfig() {
 
     btnLoad := SpellBinderGUI.Add("Button", "x10 y50 w100", "Load")
     btnLoad.OnEvent("Click", (*) => (
-        ChangeSpellConfig(ConfigFiles[ddl.Text]),
+        UpdateSpells(ConfigFiles[ddl.Text]),
         MsgBox("Loaded config:`n" ConfigFiles[ddl.Text]),
         SpellBinderGUI.Destroy()
     ))

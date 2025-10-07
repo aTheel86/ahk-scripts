@@ -1,11 +1,11 @@
 ; Directory locations
 Global ConfigDir := A_ScriptDir "\configs\user"
-Global SpellBindsDir := A_ScriptDir "\configs\spellbinds"
+Global ControlDir := A_ScriptDir "\configs\controls"
 
 ; Script config
 Global LauncherConfig := A_ScriptDir "\configs\launcher_config.ini"  ; launcher INI
 Global ConfigFile := ConfigDir "\" IniRead(LauncherConfig, "Settings", "UserConfigFile")
-Global SpellsCfgFile := SpellBindsDir "\" IniRead(ConfigFile, "Configs", "SpellsCfgFile")
+Global ControlFile := ControlDir "\" IniRead(ConfigFile, "Configs", "ControlFile")
 
 ; GUI variables
 Global gGUI := Gui("+AlwaysOnTop +ToolWindow -Caption E0x8000000") ;Disabled
@@ -17,6 +17,7 @@ Global activeMenuManager := ""  ; Global variable to store the active MenuManage
 Global WinTitle := "Helbreath Olympia 18.2" ; Title of the window
 Global bDebugMode := false
 Global CastingEffectSpell := ""
+Global LastCastspell := ""
 Global Effects := []
 Global stopFlag := false  ; Flag to stop loops
 Global SquarePercentageX := 4
@@ -27,8 +28,8 @@ Global SpellHorizontalPos := 62.5
 Global bAutoTradeRepping := false 
 
 ; From ConfigFile
-Global ScreenResX := IniRead(ConfigFile, "Coords", "ScreenResolutionX")
-Global ScreenResY := IniRead(ConfigFile, "Coords", "ScreenResolutionY")
+Global ScreenResX := 800
+Global ScreenResY := 600
 Global CenterX := ScreenResX / 2
 Global CenterY := ScreenResY / 2
 
@@ -52,12 +53,10 @@ directions.Right := [CenterX + XOffsets[3], CenterY + YOffsets[2]]
 ; Global AutoPot()
 Global AutoPotLifeAtPercent := IniRead(ConfigFile, "AutoPot", "AutoPotLifeAtPercent")
 Global AutoPotManaAtPercent := IniRead(ConfigFile, "AutoPot", "AutoPotManaAtPercent")
-Global LowHPPos := [CtPixel(13.5, "X"), CtPixel(94.1, "Y")]
-Global MidHPPos := [CtPixel(13.0 + (12.5 * (AutoPotLifeAtPercent * 0.01)), "X"), CtPixel(93.3, "Y")] 
-Global HighHPPos := [CtPixel(25.0, "X"), CtPixel(94.1, "Y")]
-Global LowManaPos := [CtPixel(13.5, "X"), CtPixel(97.8, "Y")]
-Global MidManaPos := [CtPixel(13.0 + (12.5 * (AutoPotManaAtPercent * 0.01)), "X"), CtPixel(97.8, "Y")]
-Global HighManaPos := [CtPixel(25.0, "X"), CtPixel(97.8, "Y")]
+Global HealthBarXArray := [104,111,120,128,136,144,152,160,168,176,184,192,200]
+Global HealthBarYArray := [564,564,560,560,560,560,560,560,560,560,560,564,564]
+Global ManaBarXArray := [104,112,120,128,136,144,152,160,168,176,184,192,200]
+Global ManaBarYArray := [586,586,586,586,586,586,586,582,582,582,582,586,586]
 Global LifeRed := "0xd83c2b"
 Global ManaBlue := "0x3e45d8"
 Global EmptyGrey := "0x5e5b58"

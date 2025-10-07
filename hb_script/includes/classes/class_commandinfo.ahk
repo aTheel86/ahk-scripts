@@ -7,22 +7,25 @@ class CommandInfo {
         this.HotKeyName := aKey
         this.InputCommand := aCommand
 
-		try
-		{
-			Hotkey(this.HotKeyName, DoNothing)
-		}
-		catch ValueError
-		{
-			return
-		}
-		else
-		{
-			if InStr(this.InputCommand, "{")
-			{
+        try {
+            Hotkey(this.HotKeyName, DoNothing)
+        } catch ValueError {
+            return
+        }
+
+        ; Detect if it looks like a function call (e.g. "EquipItem([1,2])")
+        if RegExMatch(this.InputCommand, "^(?<func>\w+)\((?<args>.*)\)$", &match) {
+			funcName := match.func
+			argsRaw := Trim(match.args)
+
+			args := this.ParseArgs(argsRaw)
+			Hotkey(this.HotKeyName, (*) => %funcName%(args*))
+		} else {
+            ; Treat as Send command
+            if InStr(this.InputCommand, "{") {
 				Hotkey(this.HotKeyName, this.SendCommand.Bind(this))
 			}
-			else
-			{
+			else {
 				funcRef := %this.InputCommand%.Bind()
 
 				if IsObject(funcRef) && funcRef.HasMethod("Call")
@@ -30,14 +33,33 @@ class CommandInfo {
 					Hotkey(this.HotKeyName, funcRef) ; .call()
 				}
 			}
-		}
+        }
     }
 
-	SendCommand(*) {
+    SendCommand(*) {
+        if WinActive(WinTitle) {
+            Send(this.InputCommand)
+        }
+    }
 
-		if WinActive(WinTitle) ; This supposedly stops the hotkey from working outside of the HB client
-		{
-			Send this.InputCommand
+	ParseArgs(argString) {
+		argString := Trim(argString)
+		if (argString = "")
+			return []
+
+		; If wrapped in [ ], treat as an array list
+		if (SubStr(argString, 1, 1) = "[" && SubStr(argString, -1) = "]") {
+			inner := SubStr(argString, 2, StrLen(argString)-2)  ; <-- correct length
+			out := []
+			for v in StrSplit(inner, ",")
+				out.Push(Trim(v))
+			return [out]
 		}
+
+		; Otherwise, normal comma-separated list
+		out := []
+		for v in StrSplit(argString, ",")
+			out.Push(Trim(v))
+		return out
 	}
 }
