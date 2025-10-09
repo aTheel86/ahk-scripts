@@ -13,6 +13,10 @@ class CommandInfo {
             return
         }
 
+		if (this.InputCommand == "") {
+			return
+		}
+
         ; Detect if it looks like a function call (e.g. "EquipItem([1,2])")
         if RegExMatch(this.InputCommand, "^(?<func>\w+)\((?<args>.*)\)$", &match) {
 			funcName := match.func

@@ -36,6 +36,12 @@ LoadSpellsFromConfig(cfgFile) {
         Hk        := SpellBind[1]
         SpellName := SpellBind[2]
 
+        ; Reset used variables so previous loop isn't stored.
+        SpellCircle := ""
+        yCoord      := ""
+        Img         := ""
+        Dur         := ""
+
         if (SpellName = "") {
             Hk := RegExReplace(Trim(SpellBind[1]), "[`r`n]")
             if (Hk != "" && Hk ~= "^[a-zA-Z0-9`~!+#^]+$") {
@@ -50,7 +56,12 @@ LoadSpellsFromConfig(cfgFile) {
         Img         := IniRead(cfgFile, SpellName, "EffectImg", "")
         Dur         := IniRead(cfgFile, SpellName, "EffectDur", "")
 
-        SpellInstance := SpellInfo(SpellName, SpellCircle, yCoord, Hk, Img, Dur)
+        ; Replace the fake keyword "Equals" with the real key
+        Hk := StrReplace(Hk, "Equals", "=")
+
+        if (SpellCircle != "" && yCoord != "") {
+            SpellInstance := SpellInfo(SpellName, SpellCircle, yCoord, Hk, Img, Dur)
+        }
     }
 }
 
@@ -71,18 +82,23 @@ LoadCommandsFromConfig(SectionName) {
                 line := Trim(SubStr(line, 1, pos - 1))  ; Keep only part before the comment
 
             ; Split key=value
-            SplitLine := StrSplit(line, "=")
+            SplitLine := StrSplit(line, "=", , 2)
             if (SplitLine.Length < 2)
                 continue  ; skip malformed lines
 
             Key := Trim(SplitLine[1])
             Command := Trim(SplitLine[2])
 
+            if (Key == "" || Command == "")
+                continue
+
+            ; Replace the fake keyword "Equals" with the real key
+            Key := StrReplace(Key, "Equals", "=")
+
             CommandInstance := CommandInfo(Key, Command)
         }
     }
 }
-
 
 LoadSpellsFromConfig(ControlFile)
 LoadCommandsFromConfig("Commands")

@@ -260,7 +260,7 @@ UncommonCommands(*) {
 }
 
 ReputationMenu(*) {
-	OptionsMenu(["1. Trade Rep Message", "2. Check Rep", "3. AFK Rep"],
+	OptionsMenu(["1. Trade Rep", "2. Check Rep", "3. AFK Rep"],
 				["SendTradeRepMessage", "CheckRepMessage", "ActivateAutoTradeRep"])
 }
 

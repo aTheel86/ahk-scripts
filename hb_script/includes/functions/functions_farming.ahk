@@ -523,7 +523,7 @@ FarmingRecall() {
     local MaxAttempts := 10
 
     RecallSpell := SpellInfo("Recall", "^{2}", "41.8055", "!F1")
-    Item8()
+    EquipItem(8)
 
     Loop {
         RecallSpell.CastSpell()
