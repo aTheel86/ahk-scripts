@@ -1,10 +1,5 @@
 ﻿#Requires AutoHotkey v2.0
 
-/* Issues:
-Had idea to look and remember the last cast spell and hit F4 if its the same one!
-Need to fix cfgs
-*/
-
 ; AHK settings
 Persistent
 CoordMode "Mouse", "Window" ; Client / Window / Screen (Client might be best)
@@ -182,6 +177,32 @@ ItemActivation(*) => Send("{PgUp}")
 Input_Button := NodeInfo("Input_Button", "images\node_images\Input_Button.png", "images\node_images\Input_Button_Clicked.png",, [2.6,1.3])
 Shift_Pickup := NodeInfo("Shift_Pickup", "images\node_images\Shift_To_Pickup.png",,, [-2,0.8])
 Input_Checked_Img := "images\node_images\Settings_Checked.png"
+
+PretendCorpse(*) {
+	RemoveHolds()
+
+	BlockInput true
+	MouseClick "right"
+	Sleep 10
+	MouseClick "right"
+	Sleep 10
+	Send "{F8}"
+	Sleep 10
+	MouseClick "left", CtPixel(67, "X"), CtPixel(48, "Y")
+	Sleep 10
+	Send "{F8}"
+	BlockInput false
+}
+
+TakeInvisPot(*) {
+	BlockInput true
+	Send "{F6}"
+	Sleep 10
+	MouseClick "left", CtPixel(90, "X"), CtPixel(55.2, "Y"), 2
+	Sleep 10
+	Send "{F6}"
+	BlockInput false
+}
 
 ShiftPickup(bTurnOn := true) {
     BlockInput true

@@ -88,29 +88,3 @@ RemoveHolds(*) {
     Send("{Alt up}")
     Send("{Shift up}")
 }
-
-PretendCorpse(*) {
-	RemoveHolds()
-
-	BlockInput true
-	MouseClick "right"
-	Sleep 10
-	MouseClick "right"
-	Sleep 10
-	Send "{F8}"
-	Sleep 10
-	MouseClick "left", CtPixel(67, "X"), CtPixel(48, "Y")
-	Sleep 10
-	Send "{F8}"
-	BlockInput false
-}
-
-TakeInvisPot(*) {
-	BlockInput true
-	Send "{F6}"
-	Sleep 10
-	MouseClick "left", CtPixel(90, "X"), CtPixel(55.2, "Y"), 2
-	Sleep 10
-	Send "{F6}"
-	BlockInput false
-}

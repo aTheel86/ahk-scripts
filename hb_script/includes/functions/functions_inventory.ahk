@@ -48,37 +48,3 @@ EquipItem(items) {
     MouseMove begin_x, begin_y, 0
     BlockInput "MouseMoveOff"
 }
-
-Item1(*) { 
-    EquipItem(1)
-}
-Item2(*) { 
-    EquipItem(2) 
-}
-Item3(*) { 
-    EquipItem(3) 
-}
-Item4(*) { 
-    EquipItem(4) 
-}
-Item5(*) { 
-    EquipItem(5) 
-}
-Item6(*) { 
-    EquipItem(6) 
-}
-Item7(*) { 
-    EquipItem(7) 
-}
-Item8(*) { 
-    EquipItem(8) 
-}
-Item9(*) { 
-    EquipItem(9) 
-}
-Item10(*) { 
-    EquipItem(10) 
-}
-Item1n2(*) {
-    EquipItem([1,2])
-}
