@@ -19,6 +19,10 @@ ChangeConfig(newFile) {
 LaunchSelectConfig() {
     global LaunchGUI
 
+    if WinActive(WinTitle) {
+        return
+    }
+
     LaunchGUI := Gui("+AlwaysOnTop", "Choose Config")
     LaunchGUI.SetFont("s10", "Segoe UI")
 
@@ -53,7 +57,6 @@ LaunchSelectConfig() {
     btnLoad := LaunchGUI.Add("Button", "x10 y50 w100", "Select")
     btnLoad.OnEvent("Click", (*) => (
         ChangeConfig(ConfigFiles[ddl.Text]),
-        ;MsgBox("Loaded config:`n" ConfigFiles[ddl.Text]),
         LaunchGUI.Destroy()
     ))
 

@@ -16,18 +16,22 @@ class SpellInfo {
 		this.SpellEffectDuration := eDuration
 
 		Hotkey(this.HotKeyName, this.CastSpell.Bind(this), "ON") ; Bind the hotkey so whenever it is struck it calls the CastSPell function
+
+		; Add to global tracking array
+        global SpellInfoInstances
+        SpellInfoInstances.Push(this)
     }
+
+	Disable(*) {
+		Hotkey(this.HotKeyName, DoNothing, "Off")
+	}
 
 	CastSpell(*) {
 		Global CastingEffectSpell, LastCastspell
 
 		if WinActive(WinTitle) ; This supposedly stops the hotkey from working outside of the HB client
 		{
-			if (this.SpellName == LastCastspell) {
-				Send "{F4}"
-			}
-			else {
-
+			if (UseRepeatCasting && this.SpellName != LastCastspell) {
 				BlockInput "MouseMove"
 				MouseGetPos &begin_x, &begin_y ; Get the position of the mouse
 
@@ -49,6 +53,9 @@ class SpellInfo {
 				BlockInput "MouseMoveOff"
 
 				LastCastspell := this.SpellName
+			}
+			else {
+				Send "{F4}"
 			}
 
 			if (this.SpellEffectDuration != "")

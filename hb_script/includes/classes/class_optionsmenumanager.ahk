@@ -73,15 +73,43 @@ class OptionsMenuManager {
         }
 
         funcName := this.optionFunctionNames[index]
+        arr := this.ParseFunctionString(funcName)
+        funcName := arr[1]
 
         this.DestroyOptionsGUI()  
 
         ; Try to call the function and handle any errors
         try {
-            %funcName%.Call()
+            if (arr.Length > 1) {
+                ;Msgbox funcName " " arr[2] " " arr[3]
+
+                %funcName%.Call(arr[2], arr[3]) ;arr.Length >= 3 ? arr[3] : "", arr.Length >= 4 ? arr[4] : "")
+            }
+            else {
+                %funcName%.Call()
+            }
         } catch as e {
             MsgBox("Error: Failed to execute function '" funcName "'.`n" e.Message)
         }
+    }
+
+    ParseFunctionString(funcString) {
+        ; Returns an array: first element = function name, rest = args
+        static regex := "^(?<func>\w+)\((?<args>.*)\)$"
+        
+        if !RegExMatch(funcString, regex, &match)
+            return [funcString]  ; no args
+
+        funcName := match.func
+        argsRaw  := Trim(match.args)
+        
+        arr := [funcName]  ; first element = function name
+
+        if argsRaw != ""
+            for arg in StrSplit(argsRaw, ",")
+                arr.Push(Trim(arg))
+        
+        return arr
     }
 
     ; Method to get the callback function for an option

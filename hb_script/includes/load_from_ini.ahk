@@ -15,12 +15,22 @@ if (IniRead(ConfigFile, "Settings", "UnbindKeys") == "true")
 ; ══════════════════════════════════════════════════════  Load From Config ══════════════════════════════════════════════════════ ;
 
 LoadSpellsFromConfig(cfgFile) {
+    global SpellInfoInstances
+
     try {
         SpellBindsList := IniRead(cfgFile, "SpellBinds")
     } catch {
         MsgBox("Error: 'SpellBinds' section not found in " cfgFile)
         return
     }
+
+    ; Destroy all current spell instances as we are going to reload
+    for spell in SpellInfoInstances {
+        spell.Disable()
+        spell := ""
+    }
+
+    SpellInfoInstances := []  ; clear references → garbage collection
 
     Loop Parse, SpellBindsList, "`n", "`r" {
         if (A_LoopField == "" || SubStr(A_LoopField, 1, 1) = ";")
@@ -60,7 +70,7 @@ LoadSpellsFromConfig(cfgFile) {
         Hk := StrReplace(Hk, "Equals", "=")
 
         if (SpellCircle != "" && yCoord != "") {
-            SpellInstance := SpellInfo(SpellName, SpellCircle, yCoord, Hk, Img, Dur)
+            SpellInfoInstances.Push(SpellInfo(SpellName, SpellCircle, yCoord, Hk, Img, Dur))
         }
     }
 }

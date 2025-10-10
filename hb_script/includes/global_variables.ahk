@@ -16,6 +16,7 @@ Global activeMenuManager := ""  ; Global variable to store the active MenuManage
 ; Script variables
 Global WinTitle := "Helbreath Olympia 18.2" ; Title of the window
 Global bDebugMode := false
+Global UseRepeatCasting := IniRead(ConfigFile, "Settings", "FFourRepeatCasting")
 Global CastingEffectSpell := ""
 Global LastCastspell := ""
 Global Effects := []
@@ -23,6 +24,9 @@ Global stopFlag := false  ; Flag to stop loops
 Global SquarePercentageX := 4
 Global SquarePercentageY := 5.35
 Global SpellHorizontalPos := 62.5
+
+; Memory
+Global SpellInfoInstances := []
 
 ; Auto Trade Rep
 Global bAutoTradeRepping := false 
