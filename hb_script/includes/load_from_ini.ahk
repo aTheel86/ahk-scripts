@@ -52,12 +52,7 @@ LoadSpellsFromConfig(cfgFile) {
         Img         := ""
         Dur         := ""
 
-        if (SpellName = "") {
-            Hk := RegExReplace(Trim(SpellBind[1]), "[`r`n]")
-            if (Hk != "" && Hk ~= "^[a-zA-Z0-9`~!+#^]+$") {
-                Hotkey(Hk, DoNothing) ; First make sure we assign the Hotkey, as it'll flag an error if one doesn't exist in the line below
-                Hotkey(Hk, "Off") ; For some reason this must be done, the DoNothing is not good enough
-            }
+        if (SpellName == "") {
             continue
         }
 

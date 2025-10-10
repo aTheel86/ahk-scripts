@@ -1,7 +1,5 @@
 ﻿#Requires AutoHotkey v2.0
 
-; if a spell cfg has a= it should not bind that to nothing!
-
 ; AHK settings
 Persistent
 CoordMode "Mouse", "Window" ; Client / Window / Screen (Client might be best)
@@ -173,7 +171,7 @@ ToggleMap(*) => Send("^m")
 OpenBag(*) => Send("{f6}")
 OpenCharacter(*) => Send("{f5}")
 ToggleRunWalk(*) => Send("^r")
-OpenOptions(*) => Send("{F12}")
+OpenGameSettings(*) => Send("{F12}")
 ItemActivation(*) => Send("{PgUp}")
 
 Input_Button := NodeInfo("Input_Button", "images\node_images\Input_Button.png", "images\node_images\Input_Button_Clicked.png",, [2.6,1.3])
