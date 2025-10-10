@@ -1,5 +1,7 @@
 ﻿#Requires AutoHotkey v2.0
 
+; if a spell cfg has a= it should not bind that to nothing!
+
 ; AHK settings
 Persistent
 CoordMode "Mouse", "Window" ; Client / Window / Screen (Client might be best)

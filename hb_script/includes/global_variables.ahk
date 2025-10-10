@@ -16,7 +16,6 @@ Global activeMenuManager := ""  ; Global variable to store the active MenuManage
 ; Script variables
 Global WinTitle := "Helbreath Olympia 18.2" ; Title of the window
 Global bDebugMode := false
-Global UseRepeatCasting := IniRead(ConfigFile, "Settings", "FFourRepeatCasting")
 Global CastingEffectSpell := ""
 Global LastCastspell := ""
 Global Effects := []
