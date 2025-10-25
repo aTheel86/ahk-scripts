@@ -1,5 +1,5 @@
-Global RepCoolDownTime := 3600000
-Global RepMessageInterval := 600000
+Global RepCoolDownTime := 3600000 ; 60 minutes
+Global RepMessageInterval := 60000 ; 1 minute
 Global TopLeftPos := []
 Global TopRightPos := []
 Global BottomLeftPos := []
@@ -116,12 +116,12 @@ AutoTradeRep(*) {
     LastRepElapsedTime += 1000
 
     if (LastRepElapsedTime < RepCoolDownTime + RandomDelay) {
-        RandomDelay := Random(1, 300000)
+        RandomDelay := Random(1, 30000)
         return ; Return if we are still on rep cooldown
     }
     else { ; Ready to rep
         if (LastRepMessageElapsedTime > RepMessageInterval + RandomTime) {
-            RandomTime := Random(-300000, 300000)
+            RandomTime := Random(-45000, -15000)
 
             if (!bTypedInTrade)
             {
@@ -155,7 +155,7 @@ AutoTradeRep(*) {
     }
 }
 
-SendTradeRepMessage() {
+SendTradeRepMessage(*) {
     RandomTradeRepMessage := GetRandomTradeRep()
     SendTextMessage("%" RandomTradeRepMessage)
 }
@@ -163,10 +163,10 @@ SendTradeRepMessage() {
 GetRandomTradeRep() {
     ; Define the messages and their weights
     messages := [
-        {msg: "Trade Rep", weight: 70},
+        {msg: "Trade Rep", weight: 900},
         {msg: "Trade rep", weight: 50},
-        {msg: "trad erep", weight: 10},
-        {msg: "trade rep\", weight: 5},
+        {msg: "trad erep", weight: 1},
+        {msg: "trade rep\", weight: 1},
         {msg: "trade rep", weight: 5},
         {msg: "traderep", weight: 5},
         {msg: "trader ep", weight: 5},

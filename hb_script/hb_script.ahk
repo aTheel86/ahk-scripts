@@ -178,32 +178,6 @@ Input_Button := NodeInfo("Input_Button", "images\node_images\Input_Button.png", 
 Shift_Pickup := NodeInfo("Shift_Pickup", "images\node_images\Shift_To_Pickup.png",,, [-2,0.8])
 Input_Checked_Img := "images\node_images\Settings_Checked.png"
 
-PretendCorpse(*) {
-	RemoveHolds()
-
-	BlockInput true
-	MouseClick "right"
-	Sleep 10
-	MouseClick "right"
-	Sleep 10
-	Send "{F8}"
-	Sleep 10
-	MouseClick "left", CtPixel(67, "X"), CtPixel(48, "Y")
-	Sleep 10
-	Send "{F8}"
-	BlockInput false
-}
-
-TakeInvisPot(*) {
-	BlockInput true
-	Send "{F6}"
-	Sleep 10
-	MouseClick "left", CtPixel(90, "X"), CtPixel(55.2, "Y"), 2
-	Sleep 10
-	Send "{F6}"
-	BlockInput false
-}
-
 ShiftPickup(bTurnOn := true) {
     BlockInput true
 	MouseMove 0, 0, 0
@@ -260,8 +234,8 @@ UncommonCommands(*) {
 }
 
 ReputationMenu(*) {
-	OptionsMenu(["1. Trade Rep", "2. Check Rep", "3. AFK Rep"],
-				["SendTradeRepMessage", "CheckRepMessage", "ActivateAutoTradeRep"])
+	OptionsMenu(["1. Check Rep", "2. Trade Rep", "3. AFK Rep"],
+				["CheckRepMessage", "SendTradeRepMessage", "ActivateAutoTradeRep"])
 }
 
 SpellBindTools(*) {

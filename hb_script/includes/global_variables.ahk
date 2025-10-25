@@ -88,6 +88,6 @@ InventorySlotPos.Push([CtPixel(85.6255, "X"), CtPixel(67.333, "Y")])  ; Item 10
 InventorySlotPos.Push([CtPixel(82.001, "X"), CtPixel(67.333, "Y")])  ; Item 11
 InventorySlotPos.Push([CtPixel(78.3765, "X"), CtPixel(67.333, "Y")])  ; Item 12
 InventorySlotPos.Push([CtPixel(74.752, "X"), CtPixel(67.333, "Y")])  ; Item 13
-InventorySlotPos.Push([CtPixel(71.1275, "X"), CtPixel(67.333, "Y")])  ; Item 14
+InventorySlotPos.Push([CtPixel(71.1275, "X"), CtPixel(67.333, "Y")])  ; Item 14 (slot for default picked up items)
 
 
