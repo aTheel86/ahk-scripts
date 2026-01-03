@@ -88,3 +88,7 @@ RemoveHolds(*) {
     Send("{Alt up}")
     Send("{Shift up}")
 }
+
+HelloWorld(*) {
+    
+}
