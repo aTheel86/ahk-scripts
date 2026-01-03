@@ -1,3 +1,23 @@
+EatFood(*) {
+	BlockInput "MouseMove"
+    MouseGetPos &begin_x, &begin_y ; Get the position of the mouse
+
+    if (GetKeyState("LButton", "P")) { ; If we're holding down M1 (left mouse button), release it
+        Send("{LButton up}")
+    }
+    if (GetKeyState("RButton", "P")) { ; if we are holding down m2
+        Send("{RButton up}")
+    }    
+
+	Send "{F6}"
+	Sleep 10
+    MouseClick("L", 744, 331, 2, 0)
+	Sleep 10
+    MouseMove begin_x, begin_y, 0 ; Move mouse back to original position
+	Send "{F6}"
+	BlockInput "MouseMoveOff"
+}
+
 EquipItem(items) {
     ; If a single value was passed, wrap it in an array
     if !IsObject(items)
@@ -28,32 +48,11 @@ EquipItem(items) {
     MouseMove begin_x, begin_y, 0
     BlockInput "MouseMoveOff"
 }
-
-EatFood(*) {
-	BlockInput "MouseMove"
-    MouseGetPos &begin_x, &begin_y ; Get the position of the mouse
-
-    if (GetKeyState("LButton", "P")) { ; If we're holding down M1 (left mouse button), release it
-        Send("{LButton up}")
-    }
-    if (GetKeyState("RButton", "P")) { ; if we are holding down m2
-        Send("{RButton up}")
-    }    
-
-	Send "{F6}"
-	Sleep 10
-    MouseClick("L", 744, 331, 2, 0)
-	Sleep 10
-    MouseMove begin_x, begin_y, 0 ; Move mouse back to original position
-	Send "{F6}"
-	BlockInput "MouseMoveOff"
-}
-
 PretendCorpse(*) {
     BlockInput "MouseMove"
     MouseClick "right"
-	Sleep 10
-	MouseClick "right"
+    Sleep 10
+    MouseClick "right"
     MouseGetPos &begin_x, &begin_y ; Get the position of the mouse
 
     RemoveHolds()
@@ -65,17 +64,17 @@ PretendCorpse(*) {
         Send("{RButton up}")
     }
 
-	Send "{F8}"
-	Sleep 10
-	MouseClick("L", 536, 288, 1, 0)
-	Sleep 10
+    Send "{F8}"
+    Sleep 10
+    MouseClick("L", 536, 288, 1, 0)
+    Sleep 10
     MouseMove begin_x, begin_y, 0 ; Move mouse back to original position
-	Send "{F8}"
-	BlockInput "MouseMoveOff"
+    Send "{F8}"
+    BlockInput "MouseMoveOff"
 }
 
 TakeInvisPot(*) {
-	BlockInput "MouseMove"
+    BlockInput "MouseMove"
     MouseGetPos &begin_x, &begin_y ; Get the position of the mouse
 
     RemoveHolds()
@@ -87,14 +86,14 @@ TakeInvisPot(*) {
         Send("{RButton up}")
     }      
 
-	Send "{F6}"
-	Sleep 10
+    Send "{F6}"
+    Sleep 10
     ;MouseClick("L", 744, 331, 2, 0)
-	MouseClick("L", CtPixel(90, "X"), CtPixel(55.2, "Y"), 2, 0)
-	Sleep 10
+    MouseClick("L", CtPixel(90, "X"), CtPixel(55.2, "Y"), 2, 0)
+    Sleep 10
     MouseMove begin_x, begin_y, 0 ; Move mouse back to original position
-	Send "{F6}"
-	BlockInput "MouseMoveOff"
+    Send "{F6}"
+    BlockInput "MouseMoveOff"
 
     Effects.Push(StatusEffectIndicator("images\Invis.png", 60, ""))
 }

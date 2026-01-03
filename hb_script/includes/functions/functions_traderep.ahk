@@ -1,5 +1,5 @@
-Global RepCoolDownTime := 3600000 ; 60 minutes
-Global RepMessageInterval := 60000 ; 1 minute
+Global RepCoolDownTime := 3600000
+Global RepMessageInterval := 90000 ;90 seconds
 Global TopLeftPos := []
 Global TopRightPos := []
 Global BottomLeftPos := []
@@ -100,11 +100,8 @@ SwitchToPeaceMode()
 AutoTradeRep(*) {
     Global stopFlag, bAutoTradeRepping
 
-    Static bTypedInTrade := false
     Static LastRepElapsedTime := RepCoolDownTime
     Static LastRepMessageElapsedTime := RepMessageInterval
-    Static RandomTime := 0
-    Static RandomDelay := 0
 
     if (stopFlag) {
         bAutoTradeRepping := false
@@ -115,23 +112,12 @@ AutoTradeRep(*) {
 
     LastRepElapsedTime += 1000
 
-    if (LastRepElapsedTime < RepCoolDownTime + RandomDelay) {
-        RandomDelay := Random(1, 30000)
+    if (LastRepElapsedTime < RepCoolDownTime) {
         return ; Return if we are still on rep cooldown
     }
     else { ; Ready to rep
-        if (LastRepMessageElapsedTime > RepMessageInterval + RandomTime) {
-            RandomTime := Random(-45000, -15000)
-
-            if (!bTypedInTrade)
-            {
-                SendTextMessage("%Trade rep") ; First one to make sure we are in % trade chat!
-            }
-            else
-            {
-                RandomTradeRepMessage := GetRandomTradeRep()
-                SendTextMessage(RandomTradeRepMessage)
-            }
+        if (LastRepMessageElapsedTime > RepMessageInterval + Random(0, 60000)) {
+            SendTradeRepMessage()
             LastRepMessageElapsedTime := 0
         }
         else {
@@ -155,7 +141,7 @@ AutoTradeRep(*) {
     }
 }
 
-SendTradeRepMessage(*) {
+SendTradeRepMessage() {
     RandomTradeRepMessage := GetRandomTradeRep()
     SendTextMessage("%" RandomTradeRepMessage)
 }
@@ -163,28 +149,9 @@ SendTradeRepMessage(*) {
 GetRandomTradeRep() {
     ; Define the messages and their weights
     messages := [
-        {msg: "Trade Rep", weight: 900},
-        {msg: "Trade rep", weight: 50},
-        {msg: "trad erep", weight: 1},
-        {msg: "trade rep\", weight: 1},
         {msg: "trade rep", weight: 5},
-        {msg: "traderep", weight: 5},
-        {msg: "trader ep", weight: 5},
-        {msg: "Trad rep", weight: 5},
-        {msg: "Trade repp", weight: 5},
-        {msg: "Trade rep pls", weight: 5},
-        {msg: "TradE rep", weight: 5},
-        {msg: "Trade REP", weight: 5},
-        {msg: "TRADE REP", weight: 5},
-        {msg: "trade repo", weight: 5},
-        {msg: "Can I get a trade rep?", weight: 5},
-        {msg: "Rep trade?", weight: 5},
-        {msg: "TRade Rep", weight: 15},
-        {msg: "rtRade Prep", weight: 1},
-        {msg: "trade the rep", weight: 5},
-        {msg: "trade reep", weight: 5},
-        {msg: "tradee rep", weight: 1},
-        {msg: "TRADE REP", weight: 5}
+        {msg: "rep tab", weight: 5},
+        {msg: "trade rep tab", weight: 5}
     ]
 
     totalWeight := 0
