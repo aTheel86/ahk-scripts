@@ -25,6 +25,8 @@ PeaceModeBL_Pixel.Push(CtPixel(97.2, "Y"))
 PeaceModeTR_Pixel.Push(CtPixel(58.3, "X"))
 PeaceModeTR_Pixel.Push(CtPixel(94.3, "Y"))
 
+TradeRepConfirmButton := NodeInfo("TradeRepConfirmButton", "images\node_images\TradeRepConfirmImage.png",,, [2,1])
+
 ; Example color codes to match
 Global ExpectedColors := ["0x7B7352", "0x8C7329", "0x7B7352", "0x9C8439"]
 Global PeaceModeColors := ["0x272727", "0x3D3D3D"]
@@ -50,6 +52,8 @@ CheckPixelColors() { ; Function to check if the specified pixels match the given
 ActivateAutoTradeRep() {
     SwitchToPeaceMode() ; Make sure we are in peace mode
     Sleep 100
+    DisableDialogTransparency()
+    Sleep 50
 
     myGui := Gui("+AlwaysOnTop +ToolWindow -Caption E0x8000000 -Border")
 
@@ -102,6 +106,7 @@ AutoTradeRep(*) {
 
     Static LastRepElapsedTime := RepCoolDownTime
     Static LastRepMessageElapsedTime := RepMessageInterval
+    Static RepMessageAttempts := 0
 
     if (stopFlag) {
         bAutoTradeRepping := false
@@ -118,25 +123,34 @@ AutoTradeRep(*) {
     else { ; Ready to rep
         if (LastRepMessageElapsedTime > RepMessageInterval + Random(0, 60000)) {
             SendTradeRepMessage()
+            ;ToolTip "Trying to Send Rep Message"
+            ;Sleep 5000
+            ;ToolTip ""
             LastRepMessageElapsedTime := 0
+
+            if (RepMessageAttempts >= 4) {
+                ExitApp
+            }
+            RepMessageAttempts++
         }
         else {
             LastRepMessageElapsedTime += 1000
         }
 
         ; Lets check to see if we have a trade request dialog we should accept
-        if (CheckPixelColors()) {
+        if (TradeRepConfirmButton.IsOnScreen()) {
             BlockInput "MouseMove"
             Sleep 20
 			MouseGetPos &begin_x, &begin_y ; Get the position of the mouse
-            MouseClick("L", CtPixel(45, "X"), CtPixel(63, "Y"))
-			Sleep 700
+            TradeRepConfirmButton.Click()
+			Sleep 100
 			MouseMove begin_x, begin_y, 0 ; Move mouse back to original position
 			BlockInput "MouseMoveOff"
 
             LastRepMessageElapsedTime := RepMessageInterval
             LastRepElapsedTime := 0
             RepButtonInst.StartTiming()
+            RepMessageAttempts := 0
         }
     }
 }

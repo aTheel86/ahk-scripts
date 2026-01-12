@@ -47,9 +47,6 @@ CtPixel(percent, axis) {
         return 0
     }
 
-    ; Clamp percent to 0-100
-    percent := Clamp(percent, 0, 100)
-
     if (axis = "X")
         return Round((percent / 100) * ScreenResX)
     else

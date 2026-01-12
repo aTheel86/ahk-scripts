@@ -174,9 +174,50 @@ ToggleRunWalk(*) => Send("^r")
 OpenGameSettings(*) => Send("{F12}")
 ItemActivation(*) => Send("{PgUp}")
 
+;T::DialogTransparency
+
+Input_Checked_Img := "images\node_images\Settings_Checked.png"
+
+Dialog_T := NodeInfo("Dialog_T", "images\node_images\Dialog_T.png",,, [-2,0.8])
+Menu_Graphics_Button := NodeInfo("Menu_Graphics_Button", "images\node_images\Options_Menu_Corner.png",,, [-9.5,-49.5])
+
+DialogTransparency(bTurnOn := true) {
+    BlockInput true
+	MouseMove 0, 0, 0
+    Send "{F12}"
+    Sleep 50
+	Menu_Graphics_Button.Click()
+	Sleep 50	
+	if (Settings_Location := Dialog_T.GetScreenLocation()) {
+		X1 := Settings_Location[1] - CtPixel(2.9, "X")
+		Y1 := Settings_Location[2] - CtPixel(0.5, "Y")
+		X2 := X1 + CtPixel(1.9, "X")
+		Y2 := Y1 + CtPixel(2.5, "Y")
+	}
+	else {
+		Tooltip "Failed to find setting"
+		return
+	}
+
+	if (ImageSearch(&X, &Y, X1, Y1, X2, Y2, "*TransBlack " Input_Checked_Img) != bTurnOn) {
+		Dialog_T.Click()
+	}
+    Sleep 50
+    Send "{F12}"
+    Sleep 10
+    BlockInput false
+}
+
+EnableDialogTransparency() {
+    DialogTransparency(true)
+}
+
+DisableDialogTransparency() {
+    DialogTransparency(false)
+}
+
 Input_Button := NodeInfo("Input_Button", "images\node_images\Input_Button.png", "images\node_images\Input_Button_Clicked.png",, [2.6,1.3])
 Shift_Pickup := NodeInfo("Shift_Pickup", "images\node_images\Shift_To_Pickup.png",,, [-2,0.8])
-Input_Checked_Img := "images\node_images\Settings_Checked.png"
 
 ShiftPickup(bTurnOn := true) {
     BlockInput true
