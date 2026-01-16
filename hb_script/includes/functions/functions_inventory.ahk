@@ -48,6 +48,13 @@ EquipItem(items) {
     MouseMove begin_x, begin_y, 0
     BlockInput "MouseMoveOff"
 }
+
+EquipAndActivateItem(item) {
+    EquipItem(item)
+    Sleep 250
+    ItemActivation
+}
+
 PretendCorpse(*) {
     BlockInput "MouseMove"
     MouseClick "right"
