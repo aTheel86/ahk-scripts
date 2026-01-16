@@ -4,8 +4,8 @@ ChangeDamageSpells(*) {
     baseKey := RegExReplace(A_ThisHotkey, "^[\^!+#]+")
     Str := "RebindSpell(" baseKey ","
 
-	OptionsMenu(["1. Energy B.", "2. Triple B.", "3. Ice S.", "4. Energy S.", "5. Lightning S.", "6. FuryOfThor"],
-				[Str "EnergyBolt)", Str "TripleBolt)", Str "IceStrike)", Str "EnergyStrike)", Str "LightningStrike)", Str "FuryOfThor)"])
+	OptionsMenu(["1. Energy B.", "2. Triple B.", "3. Ice S.", "4. Energy S.", "5. Lightning S.", "6. FuryOfThor", "7. Hellfire", "8. Mass FS"],
+				[Str "EnergyBolt)", Str "TripleBolt)", Str "IceStrike)", Str "EnergyStrike)", Str "LightningStrike)", Str "FuryOfThor)", Str "Hellfire)", Str "MassFireStrike)"])
 }
 
 RebindSpell(Hk, Spellname) {

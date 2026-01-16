@@ -186,8 +186,10 @@ DialogTransparency(bTurnOn := true) {
 	MouseMove 0, 0, 0
     Send "{F12}"
     Sleep 50
+
 	Menu_Graphics_Button.Click()
 	Sleep 50	
+	
 	if (Settings_Location := Dialog_T.GetScreenLocation()) {
 		X1 := Settings_Location[1] - CtPixel(2.9, "X")
 		Y1 := Settings_Location[2] - CtPixel(0.5, "Y")
@@ -196,7 +198,6 @@ DialogTransparency(bTurnOn := true) {
 	}
 	else {
 		Tooltip "Failed to find setting"
-		return
 	}
 
 	if (ImageSearch(&X, &Y, X1, Y1, X2, Y2, "*TransBlack " Input_Checked_Img) != bTurnOn) {
