@@ -101,8 +101,6 @@ ResumeScript(*) => Suspend(false)
 ; ══════════════════════════════════════════════════════  Systems/Functions ══════════════════════════════════════════════════════ ;
 
 CheckWindowState() {
-	static bMinimizedTipOpen := false
-
 	if !WinExist(WinTitle) {
 		return
 	}
@@ -112,7 +110,6 @@ CheckWindowState() {
 
 	if (Style & 0x01000000)  ; WS_MAXIMIZE style
 	{
-		bMinimizedTipOpen := false
 		;gGUI.Maximize()
 		gGUI.Show("x0 y0 w" ScreenResX " h" ScreenResY " NA NoActivate")
 		WinSetAlwaysOnTop(1, gGUI.Hwnd)          
@@ -126,19 +123,7 @@ CheckWindowState() {
 			activeMenuManager.DestroyOptionsGUI()
 		}	
 
-		if (!bMinimizedTipOpen) {
-			; Display a prompt dialog box
-			MsgBoxResult := MsgBox("Do you want to close the script?",, "YesNo")
-
-			; Check the user's response
-			if (MsgBoxResult = "Yes")
-				ExitApp()
-			else if (MsgBoxResult = "No")
-				bMinimizedTipOpen := true
-		}
-		else {
-			ToolTip "HB Script is still running!"
-		}	
+		ToolTip "HB Script is still running! Hit Alt+K to kill the script."
 	} 
 	else {
 		WinMaximize(WinTitle)
@@ -189,7 +174,7 @@ DialogTransparency(bTurnOn := true) {
 
 	Menu_Graphics_Button.Click()
 	Sleep 50	
-	
+
 	if (Settings_Location := Dialog_T.GetScreenLocation()) {
 		X1 := Settings_Location[1] - CtPixel(2.9, "X")
 		Y1 := Settings_Location[2] - CtPixel(0.5, "Y")
