@@ -58,10 +58,12 @@ ActivateAutoTradeRep() {
     myGui := Gui("+AlwaysOnTop +ToolWindow -Caption E0x8000000 -Border")
 
     ; Add the UpDown control and other components to the GUI
-    myGui.Add("Text",, "Set Delay Time (seconds):")
+    myGui.Add("Text",, "Set Delay Time in Seconds:")
     UpDownButton := myGui.Add("UpDown", "Range1-3000", 5)
-    OKButton := myGui.Add("Button", "Default vOKButton", "OK")
+    OKButton := myGui.Add("Button", "x7 y25 w40 h25", "Start")
     OKButton.OnEvent("Click", (*) => BeginTradeButtonSubmit(myGui, UpDownButton))
+    CancelButton := myGui.Add("Button", "x53 y25 w46 h25", "Cancel")
+    CancelButton.OnEvent("Click", (*) => myGui.Destroy())
 
     ; Show the GUI
     myGui.Show("x" ScreenResX / 2 " y" ScreenResY / 2 " NA NoActivate")
