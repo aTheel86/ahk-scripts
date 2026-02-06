@@ -73,11 +73,27 @@ PretendCorpse(*) {
 
     Send "{F8}"
     Sleep 10
-    MouseClick("L", 536, 288, 1, 0)
-    Sleep 10
+    PretendCorpseButtonCoords := GetPretendCorpCoords()
+    if (PretendCorpseButtonCoords[1] != "" && PretendCorpseButtonCoords[2] != "") {
+        MouseClick("L", PretendCorpseButtonCoords[1] + 10, PretendCorpseButtonCoords[2] + 5, 1, 0)
+        Sleep 10
+    }
     MouseMove begin_x, begin_y, 0 ; Move mouse back to original position
     Send "{F8}"
     BlockInput "MouseMoveOff"
+}
+
+GetPretendCorpCoords(*) {
+    try {
+        ImageSearch &x, &y
+            , 0, 0, 800, 600
+            , "*TransBlack images\node_images\Pretend_Corpse.png"
+
+        return [x, y]   ; found
+    }
+    catch {
+        return ["", ""]   ; not found / error
+    }
 }
 
 TakeInvisPot(*) {

@@ -15,7 +15,9 @@ class SpellInfo {
 		this.SpellEffectImg := eImg
 		this.SpellEffectDuration := eDuration
 
-		Hotkey(this.HotKeyName, this.CastSpell.Bind(this), "ON") ; Bind the hotkey so whenever it is struck it calls the CastSPell function
+		if (this.HotKeyName != "") {
+			Hotkey(this.HotKeyName, this.CastSpell.Bind(this), "ON") ; Bind the hotkey so whenever it is struck it calls the CastSPell function
+		}
 
 		; Add to global tracking array
         global SpellInfoInstances

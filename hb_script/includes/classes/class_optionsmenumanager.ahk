@@ -68,24 +68,34 @@ class OptionsMenuManager {
     CallFunction(index, *) {
         ; Validate index
         if (index < 1 || index > this.optionFunctionNames.Length || !WinActive(WinTitle))
-		{
+            return
+
+        action := this.optionFunctionNames[index]
+
+        if (Type(action) = "Array"
+            && action.Length >= 2
+            && Type(action[1]) = "VarRef")
+        {
+            vr  := action[1]
+            val := action[2]
+
+            this.DestroyOptionsGUI()
+            %vr% := val
             return
         }
 
-        funcName := this.optionFunctionNames[index]
+        ; Existing behavior: string function name (optionally with args)
+        funcName := action
         arr := this.ParseFunctionString(funcName)
         funcName := arr[1]
 
-        this.DestroyOptionsGUI()  
+        this.DestroyOptionsGUI()
 
-        ; Try to call the function and handle any errors
         try {
             if (arr.Length > 1) {
-                ;Msgbox funcName " " arr[2] " " arr[3]
-
-                %funcName%.Call(arr[2], arr[3]) ;arr.Length >= 3 ? arr[3] : "", arr.Length >= 4 ? arr[4] : "")
-            }
-            else {
+                ; keep your current 2-arg call behavior
+                %funcName%.Call(arr[2], arr[3])
+            } else {
                 %funcName%.Call()
             }
         } catch as e {

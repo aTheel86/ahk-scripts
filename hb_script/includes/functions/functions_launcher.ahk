@@ -20,7 +20,7 @@ LaunchSelectConfig() {
     global LaunchGUI
 
     if WinActive(WinTitle) {
-        return
+        ;return
     }
 
     LaunchGUI := Gui("+AlwaysOnTop", "Choose Config")

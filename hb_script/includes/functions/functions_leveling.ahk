@@ -1,29 +1,37 @@
 PretendCorpseLeveling(*)
 {
-	static bIsFeigning := false
-
-	bIsFeigning := !bIsFeigning
-
-	if bIsFeigning {
-		SetTimer(PretendCorpseFunction, 1000)
-	}
-	else {
-		SetTimer(PretendCorpseFunction, 0)
-	}
+	SetTimer(PretendCorpseLevelFunction, 1000)
 }
 
-PretendCorpseFunction(*) ; Not really meant to be binded, but can be (will execute one time)
+PretendCorpseLevelFunction(*) ; Not really meant to be binded, but can be (will execute one time)
 {
-	MouseGetPos(&x, &y)
+    Global stopFlag
 
-	Send "{Click, x, y}"
-	Sleep 100
-	Send "{F8}" ; toggle menu
+    if (stopFlag) {
+        bAutoTradeRepping := false
+        stopFlag := false
+        SetTimer(PretendCorpseLevelFunction, 0)
+        return
+    }
+
+    Send "{F8}"
+	Sleep 10
+
+    PretendCorpseButtonCoords := GetPretendCorpCoords()
+    if (PretendCorpseButtonCoords[1] != "" && PretendCorpseButtonCoords[2] != "") {
+        MouseClick("L", PretendCorpseButtonCoords[1] + 10, PretendCorpseButtonCoords[2] + 5, 10, 0)
+        Sleep 10
+    }
+
+	Sleep 50
+	MouseClick("R", CenterX + 200, 16, 1, 0)
+	Sleep 50
+	MouseClick("R", CenterX - 200, 16, 1, 0)
 	Sleep 100
 }
 
 ToggleMagicLeveling(*)
-{	
+{
 	global MagicLevelingFuncBound
 
 	static bIsLvling := false
