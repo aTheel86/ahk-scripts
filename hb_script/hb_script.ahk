@@ -262,8 +262,8 @@ UncommonCommands(*) {
 }
 
 ReputationMenu(*) {
-	OptionsMenu(["1. Trade Rep", "2. Check Rep", "3. AFK Rep"],
-				["SendTradeRepMessage", "CheckRepMessage", "ActivateAutoTradeRep"])
+	OptionsMenu(["1. Trade Rep", "2. Check Rep", "3. AFK Rep", "4. AFK Incog Rep"],
+				["SendTradeRepMessage", "CheckRepMessage", "ActivateAutoTradeRep", "StartAutoIncognitoRep"])
 }
 
 SpellBindTools(*) {

@@ -193,3 +193,148 @@ GetRandomTradeRep() {
     A_Clipboard := PixelGetColor(PeaceModeBL_Pixel[1], PeaceModeBL_Pixel[2]) " " PixelGetColor(PeaceModeTR_Pixel[1], PeaceModeTR_Pixel[2])
 }
 */
+
+CheckForRepMessage(*) {
+    static sX1 := 0, sX2 := 0, sY1 := 0, sY2 := 0
+
+    try {
+        if (ImageSearch(&x, &y, 0, 0, 800, 600, "*TransBlack images\rep_images\chat_search.png")) {
+            sX1 := x
+            sX2 := x + 345 ;345 is roughly the width of default chat box
+            sY1 := Max(y - 28, 0)
+            sY2 := Min(y + 5, 600)
+
+            ;MouseMove(sX1, sY1, 3)
+            ;MouseMove(sX2, sY1, 3)
+            ;MouseMove(sX2, sY2, 3)
+            ;MouseMove(sX1, sY2, 3)
+            ;MouseMove(sX1, sY1, 3)
+        }
+        else {
+            ToolTip "No chat box"
+            Send("{F9}")
+            Sleep 1000
+            ToolTip ""
+            return false
+        }
+    } catch {
+        return false
+    }
+
+    try { 
+        if (ImageSearch(&x, &y, sX1, sY1, sX2, sY2, "*TransBlack images\rep_images\rep_blue_lc.png")) {
+            return [x,y]
+        }
+    } catch {
+    }
+
+    try { 
+        if (ImageSearch(&x, &y, sX1, sY1, sX2, sY2, "*TransBlack images\rep_images\rep_white_lc.png")) {
+            return [x,y]
+        }
+    } catch {
+    }
+
+    return false
+}
+
+IsImagePresent(ImgString) {
+    try {
+        if (ImageSearch(&x, &y, 0, 0, 800, 600, "*TransBlack " ImgString)) {
+            return true
+        }
+    } catch {
+    }
+
+    return false
+}
+
+CheckForSuccessfulRep(*) {
+    try { 
+        if (ImageSearch(&x, &y, 0, 528, 300, 546, "*TransBlack images\rep_images\rep_success.png")) {
+            return true
+        }
+    } catch {
+    }
+
+    return false
+}
+
+StartAutoIncognitoRep(*)
+{   
+    SetTimer(AutoIncognitoRep, 250)
+}
+
+AutoIncognitoRep(*) {
+    Global stopFlag, bAutoTradeRepping
+
+    Static NextRepMonitorTime := 0
+    Static RecentAttempts := 0
+    static LastAttemptDecay := 0
+
+    if (stopFlag) {
+        bAutoTradeRepping := false
+        stopFlag := false
+        SetTimer(AutoIncognitoRep, 0)
+        return
+    }
+
+    bAutoTradeRepping := true
+
+    ; decay once every 10s
+    if (A_TickCount - LastAttemptDecay >= 10000) {
+        if (RecentAttempts > 0)
+            RecentAttempts--
+
+        LastAttemptDecay := A_TickCount
+    }
+
+    if (CheckForSuccessfulRep()) {
+        RecentAttempts := 0
+        NextRepMonitorTime := A_TickCount + RepCoolDownTime + Random(5000,10000)
+        RepButtonInst.StartTiming()
+        return
+    }
+
+    if (NextRepMonitorTime > A_TickCount) {
+        return
+    }
+
+    coords := CheckForRepMessage()
+
+    ; Validate checks
+    if (!coords || Type(coords) != "Array" || coords.Length < 2) {
+        return
+    }
+
+    x := coords[1], y := coords[2]
+    if !(x is Number) || !(y is Number) {
+        return
+    }
+
+    ; Attempt to trade
+    try {
+        BlockInput "MouseMove"
+        MouseGetPos(&begin_x, &begin_y)
+        Sleep 10
+        MouseMove(x-20, y+3, 0)
+        Sleep 10
+        Send "{Ctrl down}{Shift down}"
+        Sleep 5
+        Send "{t}"
+        Sleep 10
+    }
+    finally { ; ALWAYS release, even if MouseClick crashes
+        NextRepMonitorTime := A_TickCount + Random(5000,15000)
+        Send "{Shift Up}{Ctrl Up}"
+        Sleep 10
+        MouseMove begin_x, begin_y, 0
+        BlockInput "MouseMoveOff"
+        RecentAttempts++
+        Sleep 1000
+    }
+
+    if (RecentAttempts > 3) {
+        NextRepMonitorTime := A_TickCount + 120000 ; 2 min cooldown for too many attempts
+    }
+}

@@ -24,7 +24,7 @@ class GUIManager {
 
         this.AutoTradeRepText := gGUI.Add("Text", "cWhite", "Auto Trade Repping")
         this.AutoTradeRepText.SetFont("s" CalculateFontSize(1) " bold", "Segoe UI")
-        this.AutoTradeRepText.Move(CtPixel(90, "X"), CtPixel(90, "Y"))
+        this.AutoTradeRepText.Move(CtPixel(90, "X"), CtPixel(91.75, "Y"))
         this.AutoTradeRepText.Visible := false
 
         this.OptionsMenuButton := gGUI.Add("Button", "x" CtPixel(1, "X") " y" CtPixel(94, "Y") " w30 h20", "Menu")
