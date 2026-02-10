@@ -40,6 +40,7 @@ SetWorkingDir A_InitialWorkingDir ;Forces the script to use the folder it was in
 #Include includes\functions\functions_traderep.ahk
 #Include includes\functions\functions_spellbinder.ahk
 #Include includes\functions\functions_spells.ahk
+#Include includes\functions\functions_enchanting.ahk
 
 ; GUI (cannot reside in global_variables as thes require all includes)
 Global HUD := GUIManager()
