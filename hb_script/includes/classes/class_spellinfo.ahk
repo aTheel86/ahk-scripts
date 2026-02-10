@@ -5,15 +5,18 @@ class SpellInfo {
 		HotKeyName := ""
 		SpellEffectImg := ""
 		SpellEffectDuration := ""
+
+		RequiredWandSlot := ""
 	}
 
-    __New(aSpellName, aMagicPage, aCoord, aHK, eImg := "", eDuration := "") { ; Constructor
+    __New(aSpellName, aMagicPage, aCoord, aHK, eImg := "", eDuration := "", requiredWandSlot := "") { ; Constructor
 		this.SpellName := aSpellName
         this.MagicPage := aMagicPage
         this.YCoord := aCoord
 		this.HotKeyName := aHK
 		this.SpellEffectImg := eImg
 		this.SpellEffectDuration := eDuration
+		this.RequiredWandSlot := requiredWandSlot
 
 		if (this.HotKeyName != "") {
 			Hotkey(this.HotKeyName, this.CastSpell.Bind(this), "ON") ; Bind the hotkey so whenever it is struck it calls the CastSPell function
@@ -46,6 +49,17 @@ class SpellInfo {
 				Send("{RButton up}")
 			}
 
+
+			; Wand-required spells: equip ONLY when RequiredWandSlot is a positive integer (> 0).
+			; Blank, missing, or 0 means: do NOT equip, just cast.
+			wandSlot := 0
+			wandSlotStr := Trim(this.RequiredWandSlot)
+			if (wandSlotStr != "" && RegExMatch(wandSlotStr, "^\d+$"))
+				wandSlot := Integer(wandSlotStr)
+			if (wandSlot > 0) {
+				EquipItem([wandSlot], true)
+				Sleep 10
+			}
 			Send("^{" this.MagicPage "}") ; Open Magic menu tab ^{#}
 			Sleep 10
 			MouseClick("L", CtPixel(SpellHorizontalPos, "X"), CtPixel(this.YCoord, "Y"),, 0)

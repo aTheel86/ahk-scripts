@@ -23,6 +23,11 @@ class CommandInfo {
 			argsRaw := Trim(match.args)
 
 			args := this.ParseArgs(argsRaw)
+			; Special-case: when EquipItem is invoked via a hotkey command (e.g. from control INI),
+			; default to preserving/restoring mouse state like the armor set equip functions.
+			if (funcName = "EquipItem" && args.Length = 1) {
+				args.Push(true)
+			}
 			Hotkey(this.HotKeyName, (*) => %funcName%(args*))
 		} else {
             ; Treat as Send command

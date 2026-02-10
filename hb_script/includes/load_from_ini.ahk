@@ -4,6 +4,7 @@ if (IniRead(ConfigFile, "Settings", "UseAutoPotting") == "true")
 	SetTimer(AutoPot, 200)
 }
 
+; Auto-toggle HP tick swap based on health (moved to hb_script.ahk after includes)
 /*
 if (IniRead(ConfigFile, "Settings", "UnbindKeys") == "true")
 {
@@ -65,7 +66,8 @@ LoadSpellsFromConfig(cfgFile) {
         Hk := StrReplace(Hk, "Equals", "=")
 
         if (SpellCircle != "" && yCoord != "") {
-            SpellInfoInstances.Push(SpellInfo(SpellName, SpellCircle, yCoord, Hk, Img, Dur))
+            RequiredWandSlot := IniRead(ControlFile, SpellName, "RequiredWandSlot", "")
+            SpellInfoInstances.Push(SpellInfo(SpellName, SpellCircle, yCoord, Hk, Img, Dur, RequiredWandSlot))
         }
     }
 }
