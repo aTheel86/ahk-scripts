@@ -1,11 +1,13 @@
 ; Minimap Variables
-minimapX1 := CtPixel(84, "X")       ; Top-left X coordinate of the minimap
-minimapY1 := CtPixel(0, "Y")        ; Top-left Y coordinate of the minimap
-minimapX2 := CtPixel(100, "X")      ; Bottom-right X coordinate of the minimap
-minimapY2 := CtPixel(21.4, "Y")     ; Bottom-right Y coordinate of the minimap
+MiniMapBoundsX := [671,800]
+MiniMapBoundsY := [0,128]
+;minimapX1 := CtPixel(84, "X")       ; Top-left X coordinate of the minimap
+;minimapY1 := CtPixel(0, "Y")        ; Top-left Y coordinate of the minimap
+;minimapX2 := CtPixel(100, "X")      ; Bottom-right X coordinate of the minimap
+;minimapY2 := CtPixel(21.4, "Y")     ; Bottom-right Y coordinate of the minimap
 
-minimapWidth := minimapX2 - minimapX1 ; Calculate the width and height of the minimap (in pixels)
-minimapHeight := minimapY2 - minimapY1
+minimapWidth := MiniMapBoundsX[2] - MiniMapBoundsX[1] ; Calculate the width and height of the minimap (in pixels)
+minimapHeight := MiniMapBoundsY[2] - MiniMapBoundsY[1]
 
 blueDotColor := "0x0010FF"
 blueDotCoords := [0,0]
@@ -16,12 +18,10 @@ gameHeight := 256
 scaleX := gameWidth / minimapWidth
 scaleY := gameHeight / minimapHeight
 
-SetTimer(UpdatePlayerCoords, 200)
-
 ; Convert game coordinates to minimap coordinates
 GameToMinimap(gameX, gameY) {
-    minimapX := (gameX / scaleX) + minimapX1
-    minimapY := (gameY / scaleY) + minimapY1
+    minimapX := (gameX / scaleX) + MiniMapBoundsX[1]
+    minimapY := (gameY / scaleY) + MiniMapBoundsY[1]
     return [minimapX, minimapY]
 }
 
@@ -36,8 +36,12 @@ MinimapToGame(coords) {
     }
 
     ; Adjust for minimap bounds before scaling
-    gx := (coords[1] - minimapX1) * scaleX
-    gy := (coords[2] - minimapY1) * scaleY
+    gx := (coords[1] - MiniMapBoundsX[1]) * scaleX
+    gy := (coords[2] - MiniMapBoundsY[1]) * scaleY
+
+    ; round to nearest int
+    gx := Round(gx)
+    gy := Round(gy)
 
     return [gx, gy]  ; Return game world coordinates
 }
@@ -87,6 +91,28 @@ GetCursorGameCoords() {
     return cursorGameCoords  ; Return the game coordinates of the cursor
 }
 
+UpdateMiniMapCoords(*) {
+    global miniMapCoords
+
+    local tempX, tempY
+
+    if !WinActive(WinTitle) {
+        return
+    }
+
+    ; Search for the blue dot's color within the minimap
+    if PixelSearch(&tempX, &tempY, MiniMapBoundsX[1], MiniMapBoundsY[1], MiniMapBoundsX[2], MiniMapBoundsY[2], blueDotColor) {
+        blueDotCoords[1] := tempX - 1.0  ; Adjust offsets as necessary
+        blueDotCoords[2] := tempY + 0.5
+
+        ; Convert minimap coordinates to game coordinates
+        miniMapCoords := MinimapToGame(blueDotCoords)
+    }
+    else {
+        miniMapCoords := [0,0]
+    }
+}
+
 DebugCursorCoords() {
     ; Ensure that blueDotCoords array is valid and contains valid X and Y values
     if (IsObject(blueDotCoords) && blueDotCoords.Length = 2 && blueDotCoords[1] != "" && blueDotCoords[2] != "") {
@@ -97,22 +123,3 @@ DebugCursorCoords() {
     }
 }
 
-UpdatePlayerCoords() {
-    global blueDotCoords, playerGameCoords
-
-    local tempX, tempY
-
-    if !WinActive(WinTitle) {
-        return
-    }
-
-    ; Search for the blue dot's color within the minimap
-    if PixelSearch(&tempX, &tempY, minimapX1, minimapY1, minimapX2, minimapY2, blueDotColor) {
-        blueDotCoords[1] := tempX - 0.5
-        blueDotCoords[2] := tempY - 0.5  ; Adjust Y to center the dot if necessary
-
-        ; Convert minimap coordinates to game coordinates
-        playerGameCoords := MinimapToGame(blueDotCoords)
-    }
-    ; Show no error, because sometimes we won't have minimap ex- The Shop
-}

@@ -72,6 +72,7 @@ Global DefaultItemLandingPos := [CtPixel(71.6, "X"),CtPixel(61.9, "Y")]
 
 ; Player and Game Variables
 Global playerGameCoords := [0,0]
+Global miniMapCoords := [0, 0]
 GameCoords := [0,0]
 
 ; Populate the global array with coordinates

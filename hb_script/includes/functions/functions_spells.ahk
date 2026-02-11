@@ -7,8 +7,8 @@ CastSpellByName(name) {
     return false
 }
 
-Global SpellSlot1 := IniRead(ControlFile, "SpellSlots", "Slot1")
-Global SpellSlot2 := IniRead(ControlFile, "SpellSlots", "Slot2")
+Global SpellSlot1 := IniRead(ControlFile, "SpellSlots", "Slot1", "")
+Global SpellSlot2 := IniRead(ControlFile, "SpellSlots", "Slot2", "")
 
 CastSpellSlot1(*) {
     CastSpellByName(SpellSlot1)

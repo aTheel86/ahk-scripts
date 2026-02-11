@@ -34,7 +34,7 @@ SetWorkingDir A_InitialWorkingDir ;Forces the script to use the folder it was in
 #Include includes\functions\functions_inventory.ahk
 #Include includes\functions\functions_autopot.ahk
 #Include includes\functions\functions_leveling.ahk
-#Include includes\functions\functions_screenreading.ahk
+#Include includes\functions\functions_coordinates.ahk
 #Include includes\functions\functions_farming.ahk
 #Include includes\functions\functions_messages.ahk
 #Include includes\functions\functions_traderep.ahk
@@ -88,6 +88,8 @@ EscapeGUI(*)
 	global stopFlag, activeMenuManager
 
 	stopFlag := true
+
+	Tooltip ""
 
     if (activeMenuManager != "") {
         activeMenuManager.DestroyOptionsGUI()
@@ -253,8 +255,8 @@ RequestMenu(*) {
 }
 
 LevelingMenu(*) {
-    OptionsMenu(["1. PretendCorpse", "2. MagicLeveling", "3. Basic Leveling", "4. Farming", "5. Test"],
-                ["PretendCorpseLeveling", "ToggleMagicLeveling", "BeginBasicLeveling", "StartFarming", "Test"])
+    OptionsMenu(["1. PretendCorpse", "2. MagicLeveling", "3. Basic Leveling", "4. Slime Leveling", "5. Farming", "6. Test"],
+                ["PretendCorpseLeveling", "ToggleMagicLeveling", "BeginBasicLeveling", "BeginSlimeLeveling", "StartFarming", "Test"])
 }
 
 UncommonCommands(*) {

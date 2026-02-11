@@ -82,7 +82,7 @@ class NodeInfo {
         return (this.WorldCoordinates[1] + this.ClickOffset[1] >= LeftBoundary && this.WorldCoordinates[1] + this.ClickOffset[1] <= RightBoundary && this.WorldCoordinates[2] + this.ClickOffset[2] >= TopBoundary && this.WorldCoordinates[2] + this.ClickOffset[2] <= BottomBoundary)
     }    
 
-    Click(button := "left", clickTimes := 1, bUseOffset := true) {
+    Click(button := "left", clickTimes := 1, bUseOffset := true, CustomOffset := [0,0]) {
         ; Loop to attempt finding the image for a maximum of 5 tries
         Loop 5 {
             X := 0
@@ -99,21 +99,23 @@ class NodeInfo {
                 offsetY := bUseOffset ? this.ClickOffset[2] : 0
 
                 ; Handle click
-                Sleep 20
-                MouseClick(button, this.Location[1] + offsetX, this.Location[2] + offsetY, clickTimes)
-                Sleep 100
+                Sleep 10
+                MouseClick(button, this.Location[1] + offsetX, this.Location[2] + offsetY, clickTimes, 0)
+                Sleep 10
                 return true
             } 
-            else if (this.Imagepath == "" && this.AltImagepath == "") {
-                pPos := ReadCoordinates()
-
-                if (AreArraysEqual(pPos, this.WorldCoordinates)) {
-                    return true
+            else if (this.Imagepath == "" && this.AltImagepath == "" && (this.WorldCoordinates[1] != 0 || this.WorldCoordinates[2] != 0)) {
+                if (playerGameCoords[1] == "" || playerGameCoords[2] == "") {
+                    return false
                 }
 
-                CoordsToClick := this.CalculateClickScreenSpaceOffet(pPos[1], pPos[2], this.WorldCoordinates[1], this.WorldCoordinates[2])
-                MouseClick(button, CoordsToClick[1], CoordsToClick[2], clickTimes)
-                return false
+                CoordsToClick := this.CalculateClickScreenSpaceOffet(playerGameCoords[1], playerGameCoords[2], this.WorldCoordinates[1] + CustomOffset[1], this.WorldCoordinates[2] + CustomOffset[2])
+
+                ; Handle click
+                Sleep 10
+                MouseClick(button, CoordsToClick[1], CoordsToClick[2], clickTimes, 0)
+                Sleep 10
+                return true
             }
             else {
                 ; Wait before retrying
@@ -121,7 +123,7 @@ class NodeInfo {
             }
         }
 
-        ; Return false if image was not found after 10 attempts
+        ; Return false if image was not found after too many attempts
         return false
     }
 
@@ -131,6 +133,13 @@ class NodeInfo {
         ScreenSpaceOffsetX := CenterX + (XOffset * deltaX) ; Calcs the X offset from center
         ScreenSpaceOffsetY := CenterY + (YOffset * deltaY) ; Calcs the Y offset from center 
         return [ScreenSpaceOffsetX, ScreenSpaceOffsetY]
+    }
+
+    IsPlayerOnWorldLocation(Offset := [0,0]) {
+        if (playerGameCoords == this.WorldCoordinates + Offset) {
+            return true
+        }
+        return false
     }
 
     MoveToLocation() {

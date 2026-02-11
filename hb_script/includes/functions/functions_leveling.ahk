@@ -1,9 +1,9 @@
 PretendCorpseLeveling(*)
 {
-	SetTimer(PretendCorpseLevelFunction, 1000)
+	SetTimer(PretendCorpseLevelFunction, 150)
 }
 
-PretendCorpseLevelFunction(*) ; Not really meant to be binded, but can be (will execute one time)
+PretendCorpseLevelFunction(*)
 {
     Global stopFlag
 
@@ -19,15 +19,15 @@ PretendCorpseLevelFunction(*) ; Not really meant to be binded, but can be (will 
 
     PretendCorpseButtonCoords := GetPretendCorpCoords()
     if (PretendCorpseButtonCoords[1] != "" && PretendCorpseButtonCoords[2] != "") {
-        MouseClick("L", PretendCorpseButtonCoords[1] + 10, PretendCorpseButtonCoords[2] + 5, 10, 0)
+        MouseClick("L", PretendCorpseButtonCoords[1] + 10, PretendCorpseButtonCoords[2] + 5, 4, 0)
         Sleep 10
     }
 
-	Sleep 50
-	MouseClick("R", CenterX + 200, 16, 1, 0)
-	Sleep 50
-	MouseClick("R", CenterX - 200, 16, 1, 0)
-	Sleep 100
+	Sleep 10
+	MouseClick("R", CenterX, CenterY - 40, 1, 0)
+	Sleep 10
+	MouseClick("R", CenterX, CenterY + 40, 1, 0)
+	Sleep 10
 }
 
 ToggleMagicLeveling(*)
@@ -250,7 +250,7 @@ MoveToPosition(x, y, distance := 1)
 	MouseClick("L", x, y)
 	Sleep 10
 	MouseMove CenterX, CenterY	
-	Sleep 300 * distance
+	Sleep 200 * distance
 }
 
 MoveCastBerserk()
@@ -409,9 +409,9 @@ LookBackAndForth() {
 	Loop Random(1,5)
 	{
 		MouseMove CtPixel((50 - SquarePercentageX), "X"), CtPixel(50, "Y")
-		Sleep Random(50,300)
+		Sleep Random(50,100)
 		MouseMove CtPixel((50 + SquarePercentageX), "X"), CtPixel(50, "Y")
-		Sleep Random(50,300)
+		Sleep Random(50,150)
 	}
 	Send("{RButton up}")
 	Sleep 10
@@ -510,7 +510,115 @@ BasicLeveling(myGUI, Duration)
 
 				if (A_TickCount > StopTime) {
 					MoveNearby(10,"right")
-					Sleep 1000
+					Sleep 500
+					CastRecall()
+					Break
+				}
+			}
+		
+			if (stopFlag) {
+				stopFlag := false
+				Break
+			}
+		}
+
+		SendTextMessage("/shiftpickup")
+		Send("{RButton up}")
+		BlockInput "MouseMoveOff"
+	}
+}
+
+BeginSlimeLeveling()
+{
+    myGui := Gui("+AlwaysOnTop +ToolWindow -Caption E0x8000000 -Border")
+
+    ; Add the UpDown control and other components to the GUI
+    myGui.Add("Text",, "Set Duration (minutes):")
+    EditBox := myGui.Add("Slider", "ToolTipBottom Range1-180", 20)
+    OKButton := myGui.Add("Button", "Default", "OK")
+    OKButton.OnEvent("Click", (*) => SlimeLeveling(myGui, EditBox.Value))
+
+    ; Show the GUI
+    myGui.Show("x" ScreenResX / 2 " y" ScreenResY / 2 " NA NoActivate")
+    
+    ; Ensure the window stays on top and non-interactive
+    WinSetAlwaysOnTop(1, myGui.Hwnd)
+    WinSetExStyle("+0x80000", myGui.Hwnd)  ; WS_EX_NOACTIVATE
+}
+
+SlimeLeveling(myGUI, Duration)
+{
+    global stopFlag 
+
+	myGui.Destroy()
+
+	StopTime := A_TickCount + (Duration * 60 * 1000)
+	
+	LastAttackTime := A_TickCount
+	StartTime_EatFood := A_TickCount
+	Last_RandomBehavior := A_TickCount
+	Interval_EatFood := 300000
+	dist := 2
+
+	if WinActive(WinTitle) ; This supposedly stops the hotkey from working outside of the HB client
+	{
+		BlockInput "MouseMove"
+		MouseMove CenterX, CenterY  ;Move mouse to center screen
+		SendTextMessage("/shiftpickup")
+
+		Loop {
+			i := 0
+			ElapsedTime_EatFood := A_TickCount - StartTime_EatFood
+
+			EnemyCoords := FindAdjacentEnemy()
+			if (EnemyCoords) {
+				Send("{RButton down}")
+				Loop {
+					i++
+					if (i > 20) {
+						Send("{Alt down}")
+					}
+
+					if (i > 100) {
+						break
+					}
+					Sleep 100
+				} Until !CanAttackCoord(EnemyCoords[1], EnemyCoords[2])
+				Send("{Alt up}")
+				Send("{RButton up}")
+				dist := 2
+				LastAttackTime := A_TickCount
+			}
+			else {
+				MouseMove CenterX, CenterY
+
+				if ((A_TickCount - LastAttackTime) >= 25000) {
+					if (FindAndMove(dist)) {
+						dist := 2
+					}
+					else {
+						dist := Min(++dist, 6)
+					}
+					LastAttackTime := A_TickCount
+				}
+
+				if ((A_TickCount - Last_RandomBehavior) >= Random(10000,30000)) {
+					;RandomBehavior()
+					; move to nearest slime?
+					Last_RandomBehavior := A_TickCount
+				}
+
+				if (ElapsedTime_EatFood >= Interval_EatFood) {
+					EatFood()
+					Sleep 100
+					MouseMove CenterX, CenterY
+					Sleep 100
+					StartTime_EatFood := A_TickCount
+				}
+
+				if (A_TickCount > StopTime) {
+					MoveNearby(10,"right")
+					Sleep 500
 					CastRecall()
 					Break
 				}
