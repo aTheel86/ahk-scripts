@@ -136,7 +136,7 @@ class NodeInfo {
     }
 
     IsPlayerOnWorldLocation(Offset := [0,0]) {
-        if (playerGameCoords == this.WorldCoordinates + Offset) {
+        if ((playerGameCoords[1] == this.WorldCoordinates[1] + Offset[1]) && (playerGameCoords[2] == this.WorldCoordinates[2] + Offset[2])) {
             return true
         }
         return false

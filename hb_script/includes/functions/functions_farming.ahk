@@ -664,6 +664,8 @@ DoesSummonExist()
 
 DoesProduceExist(square)
 {
+    MouseMove(square[1], square[2], 0)
+
 	Offsets := [PixelGetColor(square[1] + 12, square[2] + 10, "RGB"), 
                 PixelGetColor(square[1] + 12, square[2] + 11, "RGB"), 
                 PixelGetColor(square[1] + 13, square[2] + 10, "RGB"), 
@@ -677,21 +679,8 @@ DoesProduceExist(square)
 	return false
 }
 
-
-;FarmPositions := [directions.Down, directions.LeftDown, directions.RightDown]
-;FarmPositionsLtR := [directions.LeftDown, directions.Down, directions.RightDown]
-
-;directions := Object() ; Define coordinates for each adjacent square using valid object literal syntax
-;directions.RightDown := [CenterX + XOffsets[3], CenterY + YOffsets[3]]
-;directions.LeftDown := [CenterX + XOffsets[1], CenterY + YOffsets[3]]
-;directions.LeftUp := [CenterX + XOffsets[1], CenterY + YOffsets[1]]
-;directions.RightUp := [CenterX + XOffsets[3], CenterY + YOffsets[1]]
-;directions.Up := [CenterX + XOffsets[2], CenterY + (YOffsets[1])]
-;directions.Down := [CenterX + XOffsets[2], CenterY + YOffsets[3]]
-;directions.Left := [CenterX + XOffsets[1], CenterY + YOffsets[2]]
-;directions.Right := [CenterX + XOffsets[3], CenterY + YOffsets[2]]
-
 DoesCropExist(square) {
+    MouseMove(square[1], square[2], 0)
 	OffsetColor := PixelGetColor(square[1] + 2, square[2] + 24, "RGB")
 
 	if (OffsetColor == "0x0000D7") {
@@ -734,11 +723,13 @@ HarvestCrops() {
             Break
         }
 
+        x := -1
+
         for square in FarmPositions {
             if (!DoesCropExist(square)) {
                 if (DoesProduceExist(square)) {
                     PickUp() ; will pick up on grid we are already on
-                    if (GetInFarmSpot([-1,1])) {
+                    if (GetInFarmSpot([x,1])) {
                         PickUp()
                     }
                     GetInFarmSpot()
@@ -752,7 +743,7 @@ HarvestCrops() {
         if (DoesCropExist(directions.Down)) {
             MouseMove(directions.Down[1], directions.Down[2], 0)
             Send("{RButton down}")
-            Sleep 1000
+            Sleep 10000
 
             if (NextToolCycleTime <= A_TickCount) {
                 Send("{RButton up}")
@@ -767,6 +758,8 @@ HarvestCrops() {
             Send("{RButton up}")
             return
         }
+
+        ClearEnemies()
 
         ; could add other checks here to make sure someone isn't trying to detect script us!
 
