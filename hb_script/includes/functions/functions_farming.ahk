@@ -786,7 +786,7 @@ HarvestCrops() {
 
                     Sleep 500
                     curPos := farmPlots[farmPlotIndex].WorldCoordinates
-                    DesiredPosition := [curPos[1] - i, curPos[2] + 1]
+                    DesiredPosition := [curPos[1] + i, curPos[2] + 1]
                     MoveToWorldCoord(DesiredPosition)
                     Sleep 1500
                     PickUp()
