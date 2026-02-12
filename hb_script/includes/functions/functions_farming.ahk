@@ -707,11 +707,11 @@ DoesCropExist(square) {
 
 PlantCropInSquare(square) {
     OpenBag()
-    Sleep 50
+    Sleep 250
     if (CheckSeedsRemaining()) {
-            MouseClick("L", InventorySlotPos[SeedInvSlot][1]+5, InventorySlotPos[SeedInvSlot][2]+5, 2, 0)
-            Sleep Random(100,500)
-            MouseClick("L", square[1], square[2], 1, 0)
+        MouseClick("L", InventorySlotPos[SeedInvSlot][1]+10, InventorySlotPos[SeedInvSlot][2]+10, 2, 0)
+        Sleep Random(100,500)
+        MouseClick("L", square[1], square[2], 1, 0)
     }
     OpenBag() ;Close 
     Sleep 50
@@ -772,6 +772,15 @@ HarvestCrops() {
                 }
                 else {
                     PlantCropInSquare(square)
+                    Sleep 100
+                    if !DoesCropExist(square) {
+                        ClearEnemies()
+                        if !GetInFarmSpot() {
+                            StopFarming()
+                            Send("{RButton up}")
+                            return
+                        }
+                    }
                 }
             }
         }
