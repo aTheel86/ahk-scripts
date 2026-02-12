@@ -33,9 +33,11 @@ class NodeInfo {
         this.EndY := EndY
     }
 
-    IsCoordsNearby(WorldCoordX, WorldCoordY, NearbyThresholdX := 25, NearbyThresholdY := 17) {
-        XDiff := Abs(this.WorldCoordinates[1] - WorldCoordX)
-        YDiff := Abs(this.WorldCoordinates[2] - WorldCoordY)
+    IsPlayerNearby(NearbyThresholdX := 25, NearbyThresholdY := 17) {
+        UpdatePlayerCoords() ; need to update player coords here
+
+        XDiff := Abs(this.WorldCoordinates[1] - playerGameCoords[1])
+        YDiff := Abs(this.WorldCoordinates[2] - playerGameCoords[2])
 
         return (XDiff <= NearbyThresholdX && YDiff <= NearbyThresholdY)
     }
@@ -109,6 +111,8 @@ class NodeInfo {
                     return false
                 }
 
+                UpdatePlayerCoords() ; need to update player coords here
+
                 CoordsToClick := this.CalculateClickScreenSpaceOffet(playerGameCoords[1], playerGameCoords[2], this.WorldCoordinates[1] + CustomOffset[1], this.WorldCoordinates[2] + CustomOffset[2])
 
                 ; Handle click
@@ -136,6 +140,8 @@ class NodeInfo {
     }
 
     IsPlayerOnWorldLocation(Offset := [0,0]) {
+        UpdatePlayerCoords()
+
         if ((playerGameCoords[1] == this.WorldCoordinates[1] + Offset[1]) && (playerGameCoords[2] == this.WorldCoordinates[2] + Offset[2])) {
             return true
         }
