@@ -591,17 +591,17 @@ CycleTool() {
     Sleep 250
 }
 
-GetInFarmSpot(OffsetSquare := [0,0]) {
+GetInFarmSpot() {
     if (!farmingActive || farmPlotIndex == 0) {
         return false
     }  
 
-    Loop 5 {
-        if (farmPlots[farmPlotIndex].IsPlayerOnWorldLocation(OffsetSquare)) {
+    Loop 7 {
+        if (farmPlots[farmPlotIndex].IsPlayerOnWorldLocation()) {
             return true
         }
 
-        farmPlots[farmPlotIndex].Click(,,,OffsetSquare)
+        farmPlots[farmPlotIndex].Click()
         MouseMove(CenterX, CenterY, 0)
         Sleep 2000
         MouseClick("R") ; stop moving
@@ -791,7 +791,7 @@ HarvestCrops() {
                     Sleep 1500
                     PickUp()
                     Sleep 500
-                    GetInFarmSpot()
+                    MoveToWorldCoord(farmPlots[farmPlotIndex].WorldCoordinates)
                     Sleep 500
                 }
                 else {

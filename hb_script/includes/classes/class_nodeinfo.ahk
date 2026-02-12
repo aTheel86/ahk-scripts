@@ -84,7 +84,7 @@ class NodeInfo {
         return (this.WorldCoordinates[1] + this.ClickOffset[1] >= LeftBoundary && this.WorldCoordinates[1] + this.ClickOffset[1] <= RightBoundary && this.WorldCoordinates[2] + this.ClickOffset[2] >= TopBoundary && this.WorldCoordinates[2] + this.ClickOffset[2] <= BottomBoundary)
     }    
 
-    Click(button := "left", clickTimes := 1, bUseOffset := true, CustomOffset := [0,0]) {
+    Click(button := "left", clickTimes := 1, bUseOffset := true) {
         ; Loop to attempt finding the image for a maximum of 5 tries
         Loop 5 {
             X := 0
@@ -114,7 +114,7 @@ class NodeInfo {
                     return false
                 }
 
-                CoordsToClick := this.CalculateClickScreenSpaceOffset(playerGameCoords[1], playerGameCoords[2], this.WorldCoordinates[1] + CustomOffset[1], this.WorldCoordinates[2] + CustomOffset[2])
+                CoordsToClick := this.CalculateClickScreenSpaceOffset(playerGameCoords[1], playerGameCoords[2], this.WorldCoordinates[1], this.WorldCoordinates[2])
 
                 ; Handle click
                 Sleep 10
@@ -140,12 +140,16 @@ class NodeInfo {
         return [ScreenSpaceOffsetX, ScreenSpaceOffsetY]
     }
 
-    IsPlayerOnWorldLocation(Offset := [0,0]) {
+    IsPlayerOnWorldLocation() {
         UpdatePlayerCoords()
 
-        if ((playerGameCoords[1] == this.WorldCoordinates[1] + Offset[1]) && (playerGameCoords[2] == this.WorldCoordinates[2] + Offset[2])) {
+        if ((playerGameCoords[1] == this.WorldCoordinates[1]) && (playerGameCoords[2] == this.WorldCoordinates[2])) {
             return true
         }
+
+        Tooltip "Player is not in position is off by: X: " (playerGameCoords[1] - this.WorldCoordinates[1]) " Y: " (playerGameCoords[2] - this.WorldCoordinates[2])
+        Sleep 2000
+        Tooltip ""
         return false
     }
 
