@@ -51,11 +51,6 @@ UpdatePlayerCoords() {
 
     UpdateMiniMapCoords()
     CalculatePlayerCoordinates()
-
-    ;Tooltip "XMinimap: " miniMapCoords[1] " Xdetailed: " playerGameCoords[1]
-    ;Tooltip "YMinimap: " miniMapCoords[2] " Ydetailed: " playerGameCoords[2]
-
-    ;Tooltip "X: " playerGameCoords[1] " Y: " playerGameCoords[2]
 }
 
 SetTimer(UpdatePlayerCoords, 200)
