@@ -111,6 +111,8 @@ UpdateMiniMapCoords(*) {
     else {
         miniMapCoords := [0,0]
     }
+
+    ;Tooltip "Minimap coords: " miniMapCoords[1] " , " miniMapCoords[2]
 }
 
 DebugCursorCoords() {

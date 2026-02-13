@@ -147,9 +147,9 @@ class NodeInfo {
             return true
         }
 
-        Tooltip "Player is not in position is off by: X: " (playerGameCoords[1] - this.WorldCoordinates[1]) " Y: " (playerGameCoords[2] - this.WorldCoordinates[2])
-        Sleep 2000
-        Tooltip ""
+        ;Tooltip "Player is not in position is off by: X: " (playerGameCoords[1] - this.WorldCoordinates[1]) " Y: " (playerGameCoords[2] - this.WorldCoordinates[2])
+        ;Sleep 2000
+        ;Tooltip ""
         return false
     }
 
