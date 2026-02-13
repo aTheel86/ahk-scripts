@@ -77,4 +77,4 @@ UpdatePlayerCoords() {
     CalculatePlayerCoordinates()
 }
 
-;SetTimer(UpdatePlayerCoords, 200)
+SetTimer(UpdatePlayerCoords, 250)

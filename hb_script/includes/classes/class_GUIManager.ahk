@@ -79,7 +79,7 @@ class GUIManager {
     
         ;MouseGetPos(&MouseX, &MouseY)
         ;this.CoordText.Value := Format("X: {:.2f}%, Y: {:.2f}%", CtPercent(MouseX, "X"), CtPercent(MouseY, "Y"))
-        UpdatePlayerCoords()
+        ;UpdatePlayerCoords()
         this.CoordText.Value := Format("({:d}, {:d})", playerGameCoords[1], playerGameCoords[2])
         this.StatusText.SetFont(A_IsSuspended ? "cff9c9c" : "c16ff58")
         this.HealthPotText.SetFont(bTryHPPotting ? "c16ff58" : "cff9c9c")

@@ -783,7 +783,7 @@ HarvestCrops() {
                 bMissingACrop := true
 
                 if (DoesProduceExist(square)) {
-
+                    PickUp()
                     Sleep 500
                     curPos := farmPlots[farmPlotIndex].WorldCoordinates
                     DesiredPosition := [curPos[1] + i, curPos[2] + 1]
