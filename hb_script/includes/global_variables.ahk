@@ -69,6 +69,7 @@ Global bTryManaPotting := true
 ; Define the global array of inventory slot positions
 Global InventorySlotPos := []  ; Initialize as an empty array
 Global DefaultItemLandingPos := [CtPixel(71.6, "X"),CtPixel(61.9, "Y")]
+Global InventoryAreaBox := [499, 293, 768, 500]
 
 ; Player and Game Variables
 Global playerGameCoords := [0,0]

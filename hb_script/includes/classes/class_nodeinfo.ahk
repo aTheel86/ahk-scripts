@@ -33,9 +33,11 @@ class NodeInfo {
         this.EndY := EndY
     }
 
-    IsCoordsNearby(WorldCoordX, WorldCoordY, NearbyThresholdX := 25, NearbyThresholdY := 17) {
-        XDiff := Abs(this.WorldCoordinates[1] - WorldCoordX)
-        YDiff := Abs(this.WorldCoordinates[2] - WorldCoordY)
+    IsPlayerNearby(NearbyThresholdX := 25, NearbyThresholdY := 17) {
+        UpdatePlayerCoords() ; need to update player coords here
+
+        XDiff := Abs(this.WorldCoordinates[1] - playerGameCoords[1])
+        YDiff := Abs(this.WorldCoordinates[2] - playerGameCoords[2])
 
         return (XDiff <= NearbyThresholdX && YDiff <= NearbyThresholdY)
     }
@@ -82,7 +84,7 @@ class NodeInfo {
         return (this.WorldCoordinates[1] + this.ClickOffset[1] >= LeftBoundary && this.WorldCoordinates[1] + this.ClickOffset[1] <= RightBoundary && this.WorldCoordinates[2] + this.ClickOffset[2] >= TopBoundary && this.WorldCoordinates[2] + this.ClickOffset[2] <= BottomBoundary)
     }    
 
-    Click(button := "left", clickTimes := 1, bUseOffset := true, CustomOffset := [0,0]) {
+    Click(button := "left", clickTimes := 1, bUseOffset := true) {
         ; Loop to attempt finding the image for a maximum of 5 tries
         Loop 5 {
             X := 0
@@ -105,11 +107,14 @@ class NodeInfo {
                 return true
             } 
             else if (this.Imagepath == "" && this.AltImagepath == "" && (this.WorldCoordinates[1] != 0 || this.WorldCoordinates[2] != 0)) {
+                UpdatePlayerCoords() ; need to update player coords here
+                Sleep 100
+
                 if (playerGameCoords[1] == "" || playerGameCoords[2] == "") {
                     return false
                 }
 
-                CoordsToClick := this.CalculateClickScreenSpaceOffet(playerGameCoords[1], playerGameCoords[2], this.WorldCoordinates[1] + CustomOffset[1], this.WorldCoordinates[2] + CustomOffset[2])
+                CoordsToClick := this.CalculateClickScreenSpaceOffset(playerGameCoords[1], playerGameCoords[2], this.WorldCoordinates[1], this.WorldCoordinates[2])
 
                 ; Handle click
                 Sleep 10
@@ -127,7 +132,7 @@ class NodeInfo {
         return false
     }
 
-    CalculateClickScreenSpaceOffet(playerX, playerY, targetX, targetY) {
+    CalculateClickScreenSpaceOffset(playerX, playerY, targetX, targetY) {
         deltaX := targetX - playerX  ; Coord difference in X
         deltaY := targetY - playerY  ; Coord difference in Y
         ScreenSpaceOffsetX := CenterX + (XOffset * deltaX) ; Calcs the X offset from center
@@ -135,157 +140,119 @@ class NodeInfo {
         return [ScreenSpaceOffsetX, ScreenSpaceOffsetY]
     }
 
-    IsPlayerOnWorldLocation(Offset := [0,0]) {
-        if (playerGameCoords == this.WorldCoordinates + Offset) {
+    IsPlayerOnWorldLocation() {
+        UpdatePlayerCoords()
+
+        if ((playerGameCoords[1] == this.WorldCoordinates[1]) && (playerGameCoords[2] == this.WorldCoordinates[2])) {
             return true
         }
+
+        ;Tooltip "Player is not in position is off by: X: " (playerGameCoords[1] - this.WorldCoordinates[1]) " Y: " (playerGameCoords[2] - this.WorldCoordinates[2])
+        ;Sleep 2000
+        ;Tooltip ""
         return false
     }
 
     MoveToLocation() {
-        ; Convert the game coordinates to minimap coordinates
-        targetCoords := GameToMinimap(this.WorldCoordinates[1], this.WorldCoordinates[2])
-        targetX := targetCoords[1]
-        targetY := targetCoords[2]
-
-        ; Initialize variables for tracking progress
-        startDeltaX := ""
-        startDeltaY := ""
-        prevDeltaX := 0
-        prevDeltaY := 0
-        NoProgress_StartTime := 0
-        NoProgress_ElapsedTime := 0
-        MaxNoProgressDuration := 2000
-        noProgressCounterForFail := 0
-
-        ;First Lets call in order the attached node info's MoveToLocation()
-        for node in this.ConnectedNodes {
+        ; prerequisites
+        for node in this.ConnectedNodes
             node.MoveToLocation()
-        }
 
-        loop {
-            if stopFlag {
-                break
+        targetX := this.WorldCoordinates[1]
+        targetY := this.WorldCoordinates[2]
+
+        endTime := A_TickCount + 30000
+        tolerance := 3
+
+        hPos := []
+        hMax := 10
+        hI := 1
+
+        Loop {
+            if (stopFlag)
+                return false
+            if (A_TickCount >= endTime)
+                return false
+
+            UpdatePlayerCoords()
+
+            if (!IsObject(playerGameCoords) || playerGameCoords.Length < 2
+                || playerGameCoords[1] == "" || playerGameCoords[2] == "")
+            {
+                Sleep 250
+                continue
             }
 
-            ; Ensure that blueDotCoords array is valid and contains valid X and Y values
-            if (!IsObject(blueDotCoords) || blueDotCoords.Length != 2 || blueDotCoords[1] == "" || blueDotCoords[2] == "") {
-                Tooltip "Error: Blue dot coordinates not found!"
-                break
+            px := playerGameCoords[1]
+            py := playerGameCoords[2]
+
+            dx := targetX - px
+            dy := targetY - py
+            dist := Abs(dx) + Abs(dy)
+
+            if (hPos.Length = 0 || hPos[hPos.Length][1] != px || hPos[hPos.Length][2] != py)
+            {
+                hPos.Push([px, py])
+
+                if (hPos.Length > hMax)
+                    hPos.RemoveAt(1)
             }
 
-            if (startDeltaX == "" && startDeltaY == "") {
-                startDeltaX := Abs(targetX - blueDotCoords[1])
-                startDeltaY := Abs(targetY - blueDotCoords[2])
-            }
+            unique := Map()
 
-            ; Calculate the difference between the current blue dot position and the target
-            deltaX := targetX - blueDotCoords[1]
-            deltaY := targetY - blueDotCoords[2]
+            for _, pos in hPos {
+                key := pos[1] "," pos[2]
 
-            ; Stop when the blue dot is close enough to the target (within 2 coords)
-            if (Abs(deltaX) < 2 && Abs(deltaY) < 2) {
-                break
-            }
+                if unique.Has(key) {
+                    Tooltip "history has a duplicate"
+                    hPos := []
 
-            ProgressX := (startDeltaX * (Abs(prevDeltaX) - Abs(deltaX)))
-            ProgressY := (startDeltaY * (Abs(prevDeltaY) - Abs(deltaY)))
+                    ; juke
+                    UpdatePlayerCoords()
+                    px := playerGameCoords[1], py := playerGameCoords[2]
+                    dx := targetX - px, dy := targetY - py
 
-            if (ProgressX <= 0 && ProgressY <= 0) {
-                if (NoProgress_StartTime == 0) {
-                    NoProgress_StartTime := A_TickCount
-                }
-
-                NoProgress_ElapsedTime := A_TickCount - NoProgress_StartTime
-
-                if (NoProgress_ElapsedTime >= MaxNoProgressDuration) {
-                    MoveNearby(3)
-                    NoProgress_StartTime := 0
-                    NoProgress_ElapsedTime := 0
-                    noProgressCounterForFail++
-
-                    if (noProgressCounterForFail > 5) {
-                        Tooltip "Failed to move to location: " this.GetNodeTitle() 
-                        Send "{LButton up}"
-                        Send "{Escape}"
-                        return
+                    ; perpendicular sidestep is usually best
+                    dist := Random(5, 9)
+                    if (Abs(dx) >= Abs(dy)) {
+                        sy := (Random(0,1) ? 1 : -1)
+                        clickPos := this.CalculateClickScreenSpaceOffset(px, py, px, py + sy*dist)
+                    } else {
+                        sx := (Random(0,1) ? 1 : -1)
+                        clickPos := this.CalculateClickScreenSpaceOffset(px, py, px + sx*dist, py)
                     }
+
+
+                    MouseClick("L", clickPos[1], clickPos[2], 1, 0)
+                    Sleep 3000
+
+                    break
                 }
+
+                unique[key] := true
+            }
+
+            ; step: move 1 tile per click (stable)
+            stepX := (dx > 0) ? 1 : (dx < 0) ? -1 : 0
+            stepY := (dy > 0) ? 1 : (dy < 0) ? -1 : 0
+
+            if (dist <= 3) {
+                ThrowDist := 1
             }
             else {
-                NoProgress_StartTime := 0
-                NoProgress_ElapsedTime := 0
-            }
-            
-            if (Mod(A_Index, 2)) { ; This might not be needed
-                prevDeltaX := deltaX
-                prevDeltaY := deltaY
+                ThrowDist := Random(3,7)
             }
 
-             ; Normalize deltaX and deltaY to a range
-            distanceX := Min(Abs(deltaX), 3)
-            distanceY := Min(Abs(deltaY), 3)
+            stepX := (dx > 0) ? Min(dx, ThrowDist) : (dx < 0) ? Max(dx, -ThrowDist) : 0
+            stepY := (dy > 0) ? Min(dy, ThrowDist) : (dy < 0) ? Max(dy, -ThrowDist) : 0
 
-            ; Prioritize straight movement if one delta is much larger than the other
-            if (Abs(deltaX) > Abs(deltaY) * 2) {
-                ; Prioritize horizontal movement
-                if (deltaX > 0) {
-                    this.MoveDirection("Right", distanceX)
-                } else if (deltaX < 0) {
-                    this.MoveDirection("Left", distanceX)
-                }
-            } else if (Abs(deltaY) > Abs(deltaX) * 2) {
-                ; Prioritize vertical movement
-                if (deltaY > 0) {
-                    this.MoveDirection("Down", distanceY)
-                } else if (deltaY < 0) {
-                    this.MoveDirection("Up", distanceY)
-                }
-            } 
-            ; Use diagonal movement if both deltaX and deltaY are close in value
-            else {
-                if (deltaX > 0 && deltaY > 0) {
-                    this.MoveDirection("RightDown", Min(distanceX, distanceY))  ; Use the smaller of the two distances
-                } else if (deltaX > 0 && deltaY < 0) {
-                    this.MoveDirection("RightUp", Min(distanceX, distanceY))
-                } else if (deltaX < 0 && deltaY > 0) {
-                    this.MoveDirection("LeftDown", Min(distanceX, distanceY))
-                } else if (deltaX < 0 && deltaY < 0) {
-                    this.MoveDirection("LeftUp", Min(distanceX, distanceY))
-                }
-            }
+            clickPos := this.CalculateClickScreenSpaceOffset(px, py, px + stepX, py + stepY)
 
-            Sleep 200
-            Send("{LButton down}")
+            MouseClick("L", clickPos[1], clickPos[2], 1, 0)
+            Sleep 250
+
+            if (Abs(dx) <= tolerance && Abs(dy) <= tolerance)
+                return true
         }
-
-        Send("{LButton up}")
-        Sleep 100
-    }
-
-    MoveDirection(direction, distance := 2) {
-        ; Calculate pixel offsets for each direction based on the distance
-        XOffset := CtPixel(SquarePercentageX * distance, "X")
-        YOffset := CtPixel(SquarePercentageY * distance, "Y")
-
-        ; Create offset arrays
-        XOffsets := [-XOffset, 0, XOffset]
-        YOffsets := [-YOffset, 0, YOffset]
-
-        ; Define coordinates for each direction
-        directions := Object()
-        directions.RightDown := [CenterX + XOffsets[3], CenterY + YOffsets[3]]
-        directions.LeftDown := [CenterX + XOffsets[1], CenterY + YOffsets[3]]
-        directions.LeftUp := [CenterX + XOffsets[1], CenterY + YOffsets[1]]
-        directions.RightUp := [CenterX + XOffsets[3], CenterY + YOffsets[1]]
-        directions.Up := [CenterX + XOffsets[2], CenterY + YOffsets[1]]
-        directions.Down := [CenterX + XOffsets[2], CenterY + YOffsets[3]]
-        directions.Left := [CenterX + XOffsets[1], CenterY + YOffsets[2]]
-        directions.Right := [CenterX + XOffsets[3], CenterY + YOffsets[2]]
-
-        directions.Random := [CenterX + XOffsets[Random(1, 3)], CenterY + YOffsets[Random(1, 3)]]
-
-        Coords := directions.%direction% ; Get coordinates for the specified direction
-        MouseMove Coords[1], Coords[2], 0 ; Move the mouse to the calculated coordinates
     }
 }

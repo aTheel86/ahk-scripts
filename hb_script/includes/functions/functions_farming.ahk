@@ -5,6 +5,8 @@ you should have to begin
 staff in 8?
 4 hoes, one in each spot: 1, 2, 3, 4
 Seeds in slot 12
+
+inventory must be in default position (unlock it restart game), lock it
 */
 
 ; Inventory position helper
@@ -37,7 +39,6 @@ farmingStates := ["recall_start",
                   "enter_blacksmith",
                   "repair_all"]
 
-FarmPositions := [directions.Down, directions.LeftDown, directions.RightDown]
 FarmPositionsLtR := [directions.LeftDown, directions.Down, directions.RightDown]
 
 MessageDialogueBoxPixel := [CtPixel(0.1, "X"),CtPixel(88.75, "Y")]
@@ -88,7 +89,7 @@ ShopEntrance := NodeInfo("ShopEntrance",,, [93,178])
 ShopEntrance2 := NodeInfo("ShopEntrance2",,, [89,181])
 ShopEntrance3 := NodeInfo("ShopEntrance3",,, [91,180])
 ShopEntrance4 := NodeInfo("ShopEntrance4",,, [90,178])
-Shop_WP1 := NodeInfo("Shop_WP1",,, [118,172])
+Shop_WP1 := NodeInfo("Shop_WP1",,, [130,172])
 
 ; Farm Navigation to Blacksmith
 BlackSmithEntrance := NodeInfo("BlacksmithEntrance",,, [111,193])
@@ -136,8 +137,13 @@ seedList.Push(NodeInfo("Seed_BlueGrapes", "images\node_images\Seed_BlueGrapes.pn
 seedList.Push(NodeInfo("Seed_Mushroom", "images\node_images\Seed_Mushroom.png",,,[0,1.2], 4))
 seedList.Push(NodeInfo("Seed_Ginseng", "images\node_images\Seed_Ginseng.png",,,[0,1.2], 4))
 
+; Pickup
+PickupHandImg := "images\node_images\Pickup_Hand.png"
+CropBarImg := "images\node_images\Crop_bar.png"
+;Pickup_Hand := NodeInfo("Blacksmith", "images\node_images\Blacksmith.png",,,[1.9,13.5])
+
 Test() {
-    North_FarmWagon_WP1.MoveToLocation()
+    MouseMove(CenterX, CenterY, 0)
 }
 
 StartFarming() {
@@ -215,7 +221,8 @@ FarmingCycle() {
 
     Loop {
         if stopFlag {
-            break
+            StopFarming()
+            return
         }
 
         if (Okay_Menu_Prompt.IsOnScreen()) {
@@ -225,81 +232,86 @@ FarmingCycle() {
         Sleep 200
 
         switch FarmingState {
-            case farmingStates[1]:
+            case farmingStates[1]: ; "recall_start"
                 if (!FarmingRecall()) {
                     Tooltip "Error in 'recall_start': trying to recall"
-                    Send "{Escape}"
+                    Sleep 1000
+                    Tooltip ""
+                    StopFarming()
                 }
                 FarmingState := farmingStates[2]
 
-            case farmingStates[2]:
+            case farmingStates[2]: ; "travel_farm_plot"
                 farmPlots[farmPlotIndex].MoveToLocation()
                 FarmingState := farmingStates[3]
 
-            case farmingStates[3]:
+            case farmingStates[3]: ; "get_in_farm_plot"
                 ;ToolTip "Trying to get in the get in farm spot"
-                GetInFarmSpot()
+                if !GetInFarmSpot() {
+                    StopFarming()
+                    return
+                }
                 FarmingState := farmingStates[4]
             
-            case farmingStates[4]:
+            case farmingStates[4]: ; "change_tools"
                 ;ToolTip "Trying to cycle tool"
                 CycleTool()
                 FarmingState := farmingStates[5]
 
-            case farmingStates[5]:
+            case farmingStates[5]: ; "sow_fields"
                 ;ToolTip "Trying to sow fields"
                 SowFields()
                 FarmingState := farmingStates[6]
 
-            case farmingStates[6]:
+            case farmingStates[6]: ; "recall_for_shop"
                 if (!FarmingRecall()) {
                     Tooltip "Error in 'recall_for_shop': trying to recall"
-                    Send "{Escape}"
+                    StopFarming()
                 }
                 FarmingState := farmingStates[7]
             
-            case farmingStates[7]:
+            case farmingStates[7]: ; "move_to_shop_wp1"
                 Shop_WP1.MoveToLocation()
                 FarmingState := farmingStates[8]
 
-            case farmingStates[8]:
+            case farmingStates[8]: ; "move_to_shop"
                 ShopEntrance.MoveToLocation()
                 FarmingState := farmingStates[9]
 
-            case farmingStates[9]:
+            case farmingStates[9]: ; "enter_shop"
                 if (!EnterShop()) {
                     Tooltip "Error in farming trying to enter shop"
-                    Send "{Escape}"
+                    StopFarming()
                 }
                 FarmingState := farmingStates[10]
 
-            case farmingStates[10]:
+            case farmingStates[10]: ; "rest_and_shop"
                 RestAndShop()
                 FarmingState := farmingStates[11]
 
-            case farmingStates[11]:
+            case farmingStates[11]: ; "exit_shop"
                 if (!ExitShop()) {
                     Tooltip "Error in farming trying to exit shop"
-                    Send "{Escape}"
+                    StopFarming()
                 }
                 FarmingState := farmingStates[12]
 
-            case farmingStates[12]:
+            case farmingStates[12]: ; "move_to_blacksmith_wp1"
                 BM_WP1.MoveToLocation()
                 FarmingState := farmingStates[13]
 
-            case farmingStates[13]:
+            case farmingStates[13]: ; "move_to_blacksmith"
                 BlackSmithEntrance.MoveToLocation()
                 FarmingState := farmingStates[14]
 
-            case farmingStates[14]:
+            case farmingStates[14]: ; "enter_blacksmith"
                 if (!EnterBlackSmith()) {
                     Tooltip "Error in farming entering blacksmith"
-                    Send "{Escape}"
+                    StopFarming()
                 }
                 FarmingState := farmingStates[15]
 
-            case farmingStates[15]:
+            case farmingStates[15]: ; "repair_all"
                 RepairAll()
                 farmPlotIndex := Random(1, farmPlots.Length) ; randomize the plot we goto
                 FarmingState := farmingStates[1]
@@ -323,6 +335,7 @@ StopFarming() {
     FarmingIndicator.Visible := false
     RemoveHolds()
     ReturnInputs()
+    ExitApp
 }
 
 EnterShop() {
@@ -332,7 +345,7 @@ EnterShop() {
         for each, entrance in ShopEntrances {
             entrance.Click()
             Sleep 500
-            MouseMove(CenterX, CenterY)
+            MouseMove(CenterX, CenterY, 0)
             if (ShopKeeper.IsOnScreen()) {
                 return true
             }
@@ -346,8 +359,8 @@ ExitShop() {
     Loop 10 {
         ShopExit.Click()
         Sleep 500
-        MouseMove CenterX, CenterY
-        if (ShopEntrance.IsCoordsNearby(playerGameCoords[1], playerGameCoords[2])) {
+        MouseMove(CenterX, CenterY, 0)
+        if (ShopEntrance.IsPlayerNearby()) {
             return true
         }
         Sleep 100
@@ -359,7 +372,7 @@ EnterBlackSmith() {
     Loop 10 {
         BlackSmithEntrance.Click()
         Sleep 500
-        MouseMove CenterX, CenterY
+        MouseMove(CenterX, CenterY, 0)
         if (Blacksmith.IsOnScreen()) {
             return true
         }
@@ -406,7 +419,7 @@ RestAndShop() {
             Sleep 200
             BuySeeds()
             Sleep 100
-            MouseMove 0, 0, 0
+            MouseMove(0, 0, 0)
             Sleep 100
             Loop 10 {
                 if (ItemsForSaleMenu.Click("right")) {
@@ -429,21 +442,28 @@ RestAndShop() {
 }
 
 MoveSeedsToPosition() {
-    X1 := DefaultItemLandingPos[1] - 10, Y1 := DefaultItemLandingPos[2] - 10, X2 := DefaultItemLandingPos[1] + 10, Y2 := DefaultItemLandingPos[2] + 10
+    MouseMove(0, 0, 0)
 
-    if (ImageSearch(&X, &Y, X1, Y1, X2, Y2, "*TransBlack " Seed_Img)) {
+    if (ImageSearch(&X, &Y, InventoryAreaBox[1], InventoryAreaBox[2], InventoryAreaBox[3], InventoryAreaBox[4], "*TransBlack " Seed_Img)) {
         Send("{Shift down}")
-        MouseClickDrag "L", DefaultItemLandingPos[1], DefaultItemLandingPos[2], InventorySlotPos[12][1], InventorySlotPos[12][2], 3
+        MouseClickDrag("L", X+3, Y+3, InventorySlotPos[12][1]-5, InventorySlotPos[12][2]-5, 3)
         Send("{Shift up}")
         Sleep 300
+    }
+    else {
+        Tooltip "Error: failed to find seeds"
+        StopFarming()
     }
 }
 
 BuySeeds() {
-    MouseMove 0, 0, 0
+    global bNeedSeeds
+
+    MouseMove(0, 0, 0)
 
     if (seedIndex == 0) {
         Tooltip "No seed index assigned"
+        StopFarming()
         return
     }
 
@@ -456,11 +476,13 @@ BuySeeds() {
     Sleep 100
     seedList[seedIndex].Click()
     Sleep 100
-    MouseMove 0, 0, 0
+    MouseMove(0, 0, 0)
     Sleep 200
     QuantitySelect.Click(, seedList[seedIndex].Value)
     Sleep 200
     PurchaseButton.Click()
+
+    bNeedSeeds := false
 }
 
 SellProduce() {
@@ -472,7 +494,7 @@ SellProduce() {
     } Until (SellItemsOnDefaultSlot())
 
     if (SellListMenu.IsOnScreen()) {
-        MouseClick "right", sellSpot[1], sellSpot[2], 1 ;rightclick area to close
+        MouseClick("R", sellSpot[1], sellSpot[2], 1)
     }
 }
 
@@ -517,37 +539,36 @@ SellItemsOnDefaultSlot() {
 SowFields() {
     ClearEnemies()
     PlantInitialCrop()
-    GetInFarmSpot()
+
+    if !GetInFarmSpot() {
+        StopFarming()
+        return
+    }
+    
     HarvestCrops()
 }
 
 FarmingRecall() {
-    local Attempts := 0
-    local MaxAttempts := 10
+    local MaxAttempts := 4
 
     EquipItem(8) ; staff
     Sleep 100
 
-    Loop {
-        BlockInput "MouseMove"
+    Loop MaxAttempts {
+        ;BlockInput "MouseMove"
         CastSpellByName("Recall")
         Sleep 100
-        MouseMove CenterX, CenterY
+        MouseMove(CenterX, CenterY, 0)
         Sleep 1700
         MouseClick("L", CenterX, CenterY)
         Sleep 500
 
-        if (RecallLandingSpot.IsCoordsNearby(playerGameCoords[1], playerGameCoords[2])) {
+        if (RecallLandingSpot.IsPlayerNearby()) {
             return true
         }
         else {
             ClearEnemies()
         }
-
-        if (Attempts > MaxAttempts) {
-            break
-        }
-        Attempts++
     } 
 
     return false
@@ -570,33 +591,24 @@ CycleTool() {
     Sleep 250
 }
 
-GetInFarmSpot(OffsetSquare := [0,0]) {
-    local attempts := 0
-
+GetInFarmSpot() {
     if (!farmingActive || farmPlotIndex == 0) {
         return false
     }  
 
-    Loop {
-        if (farmPlots[farmPlotIndex].IsPlayerOnWorldLocation(OffsetSquare)) {
+    Loop 7 {
+        if (farmPlots[farmPlotIndex].IsPlayerOnWorldLocation()) {
             return true
         }
 
-        farmPlots[farmPlotIndex].Click(,,false,OffsetSquare)
-        Sleep 100
-        MouseMove CenterX, CenterY
-        ;MouseClick "right" ; stop moving
-        Sleep 50
- 
-        if (attempts > 5) {
-            break
-        }
-        
-        attempts++
-        Sleep 1000        
+        farmPlots[farmPlotIndex].Click()
+        MouseMove(CenterX, CenterY, 0)
+        Sleep 2000
+        MouseClick("R") ; stop moving
+        Sleep 10
     } 
 
-    Tooltip "Failed to get into spot." 
+    StopFarming()
     return false
 }
 
@@ -624,7 +636,7 @@ ClearEnemies() {
         } Until !CanAttackCoord(EnemyCoords[1], EnemyCoords[2])
         Send("{Alt up}")
         Send("{RButton up}")
-        MouseMove CenterX, CenterY, 0
+        MouseMove(CenterX, CenterY, 0)
         ;equip hoe
         Sleep 1000
     }
@@ -640,21 +652,21 @@ CheckSeedsRemaining() {
     x := InventorySlotPos[12][1]
     y := InventorySlotPos[12][2]
 
-    Static X1 := x - 20, Y1 := y - 20, X2 := x + 20, Y2 := y + 20  ; Initial search area variables
+    X1 := x - 20, Y1 := y - 20, X2 := x + 20, Y2 := y + 20
 
-    Px := 0, Py := 0
-
-    if (PixelSearch(&Px, &Py, X1, Y1, X2, Y2, 0xC8C8C8)) {
+    if (ImageSearch(&Px, &Py, X1, Y1, X2, Y2, "*TransBlack " Seed_Img)) {
         return true
     }
     else {
+        ;Tooltip "Out of seeds"
         bNeedSeeds := true
         return false
     }      
 }
 
-DoesSummonExist()
-{
+DoesSummonExist() {
+    ; prob need to move mouse here temp
+
     X1 := CenterX, Y1 := CenterY
     X2 := CenterX + (2 * XOffset)
     Y2 := CenterY + (2 * YOffset)
@@ -662,104 +674,143 @@ DoesSummonExist()
     return PixelSearch(&OutputVarX, &OutputVarY, X1, Y1, X2, Y2, 0x00d700)
 }
 
-DoesProduceExist(square)
-{
-	Offsets := [PixelGetColor(square[1] + 12, square[2] + 10, "RGB"), 
-                PixelGetColor(square[1] + 12, square[2] + 11, "RGB"), 
-                PixelGetColor(square[1] + 13, square[2] + 10, "RGB"), 
-                PixelGetColor(square[1] + 13, square[2] + 11, "RGB")]
+DoesProduceExist(square) {
+    MouseMove(square[1], square[2], 0)
 
-    ;A_Clipboard := PixelGetColor(x + 12, y + 10, "RGB") " " PixelGetColor(x + 12, y + 11, "RGB") " " PixelGetColor(x + 13, y + 10, "RGB") " " PixelGetColor(x + 13, y + 11, "RGB")
+    X1 := square[1] - 30
+    X2 := square[1] + 30
+    Y1 := square[2] - 30
+    Y2 := square[2] + 30
 
-	if (Offsets[1] == "0x47445D" && Offsets[2] == "0xADAAB5" && Offsets[3] == "0x515168" && Offsets[4] == "0x524A52") {
-		return true
-	}
-	return false
+    Loop 5 {
+        if (ImageSearch(&Px, &Py, X1, Y1, X2, Y2, "*TransBlack " PickupHandImg)) {
+            return true
+        }
+        Sleep Random(25,50)
+    }
+
+    return false
 }
 
-
-;FarmPositions := [directions.Down, directions.LeftDown, directions.RightDown]
-;FarmPositionsLtR := [directions.LeftDown, directions.Down, directions.RightDown]
-
-;directions := Object() ; Define coordinates for each adjacent square using valid object literal syntax
-;directions.RightDown := [CenterX + XOffsets[3], CenterY + YOffsets[3]]
-;directions.LeftDown := [CenterX + XOffsets[1], CenterY + YOffsets[3]]
-;directions.LeftUp := [CenterX + XOffsets[1], CenterY + YOffsets[1]]
-;directions.RightUp := [CenterX + XOffsets[3], CenterY + YOffsets[1]]
-;directions.Up := [CenterX + XOffsets[2], CenterY + (YOffsets[1])]
-;directions.Down := [CenterX + XOffsets[2], CenterY + YOffsets[3]]
-;directions.Left := [CenterX + XOffsets[1], CenterY + YOffsets[2]]
-;directions.Right := [CenterX + XOffsets[3], CenterY + YOffsets[2]]
-
 DoesCropExist(square) {
-	OffsetColor := PixelGetColor(square[1] + 2, square[2] + 24, "RGB")
+    MouseMove(square[1], square[2], 0)
 
-	if (OffsetColor == "0x0000D7") {
-		return true
-	}
+    X1 := square[1] - 40
+    X2 := square[1] + 40
+    Y1 := square[2] - 40
+    Y2 := square[2] + 40
+
+    Loop 5 {
+        if (ImageSearch(&Px, &Py, X1, Y1, X2, Y2, "*TransBlack " CropBarImg)) {
+            return true
+        }
+        Sleep Random(25,50)
+    }
 	return false
 }
 
 PlantCropInSquare(square) {
     OpenBag()
-    Sleep 50
+    Sleep 250
     if (CheckSeedsRemaining()) {
-            MouseClick("L", InventorySlotPos[SeedInvSlot][1], InventorySlotPos[SeedInvSlot][2], 2, 0)
-            Sleep Random(100,500)
-            MouseClick("L", square[1], square[2], 1, 0)
+        MouseClick("L", InventorySlotPos[SeedInvSlot][1]+10, InventorySlotPos[SeedInvSlot][2]+10, 2, 0)
+        Sleep Random(100,500)
+        MouseClick("L", square[1], square[2], 1, 0)
     }
     OpenBag() ;Close 
     Sleep 50
 }
 
 PlantInitialCrop() {
-    for square in FarmPositions {
-        PlantCropInSquare(square)
+    for square in FarmPositionsLtR {
+        if (!DoesCropExist(square)) {
+            PlantCropInSquare(square)
+        }
+    }
+}
+
+HarvestSwingDown() {
+    static NextToolCycleTime := 0
+
+    if (NextToolCycleTime = 0)
+        NextToolCycleTime := A_TickCount + 40000
+
+    if (DoesCropExist(directions.Down)) {
+        MouseMove(directions.Down[1], directions.Down[2], 0)
+        Send("{RButton down}")
+
+        RandomLoopTime := A_TickCount + Random(5000, 10000)
+
+        Loop {
+            Sleep 500
+        } Until !DoesCropExist(directions.Down) || (A_TickCount >= RandomLoopTime)
+
+        Send("{RButton up}")
+
+        if (NextToolCycleTime <= A_TickCount) {
+            Sleep 10
+            CycleTool()
+            NextToolCycleTime := A_TickCount + 40000
+        }
     }
 }
 
 HarvestCrops() {
     global bNeedSeeds
 
-    if (!farmingActive) {
-        return
-    }
-
-    NextToolCycleTime := A_TickCount + 40000
-
     Loop {
-        Send("{RButton up}")
+        if (!farmingActive) {
+            return
+        }
+
+        if (!WinActive(WinTitle)) {
+            return
+        }
         
         if (stopFlag) {
             Break
         }
 
-        for square in FarmPositions {
+        Send("{RButton up}")
+        ClearEnemies()
+
+        bMissingACrop := false
+
+        for idx, square in FarmPositionsLtR {
+            i := idx - 2   ; 1→-1, 2→0, 3→1
+
             if (!DoesCropExist(square)) {
+                bMissingACrop := true
+
                 if (DoesProduceExist(square)) {
-                    PickUp() ; will pick up on grid we are already on
-                    if (GetInFarmSpot([-1,1])) {
-                        PickUp()
-                    }
-                    GetInFarmSpot()
+                    PickUp()
+                    Sleep 500
+                    curPos := farmPlots[farmPlotIndex].WorldCoordinates
+                    DesiredPosition := [curPos[1] + i, curPos[2] + 1]
+                    MoveToWorldCoord(DesiredPosition)
+                    Sleep 1500
+                    PickUp()
+                    Sleep 500
+                    MoveToWorldCoord(farmPlots[farmPlotIndex].WorldCoordinates)
+                    Sleep 500
                 }
                 else {
                     PlantCropInSquare(square)
+                    Sleep 100
+                    if !DoesCropExist(square) {
+                        ClearEnemies()
+                        if !GetInFarmSpot() {
+                            StopFarming()
+                            Send("{RButton up}")
+                            return
+                        }
+                    }
                 }
             }
         }
 
-        if (DoesCropExist(directions.Down)) {
-            MouseMove(directions.Down[1], directions.Down[2], 0)
-            Send("{RButton down}")
-            Sleep 1000
-
-            if (NextToolCycleTime <= A_TickCount) {
-                Send("{RButton up}")
-                Sleep 10
-                CycleTool()
-                NextToolCycleTime := A_TickCount + 40000
-            }
+        if (!bMissingACrop) {
+            HarvestSwingDown()
         }
 
         if (DoesSummonExist()) { ;Some assholes summon creatures to stop the bot, lets detect if this has occurred and change course
@@ -767,16 +818,13 @@ HarvestCrops() {
             Send("{RButton up}")
             return
         }
-
-        ; could add other checks here to make sure someone isn't trying to detect script us!
-
     } Until (bNeedSeeds)
 
     Send("{RButton up}")
 }
 
 PickUp() {
-    MouseMove(CenterX, CenterY)
+    MouseMove(CenterX, CenterY, 0)
     Sleep 100
     Send("{Shift down}")
     Send("{RButton down}")
@@ -786,51 +834,44 @@ PickUp() {
     Sleep 500
 }
 
-/*
-PickupProduce() {
-    if (!farmingActive) {
-        return
-    }
+MoveToWorldCoord(WorldCoordinates) {
+    global playerGameCoords
 
-    ProduceFoundArray := [0,0,0]
-    MovedTimes := 0
+    ; validate input
+    if (!IsObject(WorldCoordinates) || WorldCoordinates.Length < 2)
+        return false
 
-    MouseMove CenterX, CenterY ; Pick up produce under feet
-    PickUp()
-    ClearEnemies()
+    if (WorldCoordinates[1] == "" || WorldCoordinates[2] == "")
+        return false
 
-    ; Check crop positions and record which ones have produce to pickup
-    for index, square in FarmPositionsLtR {
-        Sleep 100
-        MouseMove square[1], square[2], 0
-        Sleep 100
+    UpdatePlayerCoords()
+    Sleep 10
 
-        if (DoesProduceExist(square[1], square[2])) {
-            ProduceFoundArray[A_Index] := 1
-        }
-    }
+    if (!IsObject(playerGameCoords) || playerGameCoords.Length < 2
+        || playerGameCoords[1] == "" || playerGameCoords[2] == "")
+        return false
 
-    for i, value in ProduceFoundArray {
-        if (value = 1) {  
-            if (MovedTimes == 0) { ; Will move to the left most produce position
-                MoveToPosition(FarmPositionsLtR[i][1], FarmPositionsLtR[i][2])
-                PickUp()
-            }
-            else if (i > 0 && ProduceFoundArray[i - 1] == 1) { ; This will run if the previous position had produce
-                MoveNearby(1, "Right")
-                PickUp()
-            }
-            else if (i > 0 && ProduceFoundArray[i - 1] == 0) { ; This should only run when the middle is empty, but left and right are produce
-                MoveNearby(2, "Right")
-                PickUp()
-            }
+    px := playerGameCoords[1], py := playerGameCoords[2]
+    tx := WorldCoordinates[1], ty := WorldCoordinates[2]
 
-            MovedTimes++
-        }
-    }
+    ; throw distance clamp (prevents crazy clicks)
+    dx := tx - px
+    dy := ty - py
+    maxThrow := 8
+    dx := (dx > 0) ? Min(dx, maxThrow) : Max(dx, -maxThrow)
+    dy := (dy > 0) ? Min(dy, maxThrow) : Max(dy, -maxThrow)
 
-    ; After picking up all produce, return to the original center position
-    MouseMove CenterX, CenterY, 0
-    Sleep 100
+    ; if CalcClickScreenSpaceOffset is a method, use this.
+    click := CalcClickScreenSpaceOffset(px, py, px + dx, py + dy)
+
+    MouseClick("L", click[1], click[2], 1, 0)
+    return true
 }
-*/
+
+CalcClickScreenSpaceOffset(playerX, playerY, targetX, targetY) {
+    deltaX := targetX - playerX  ; Coord difference in X
+    deltaY := targetY - playerY  ; Coord difference in Y
+    ScreenSpaceOffsetX := CenterX + (XOffset * deltaX) ; Calcs the X offset from center
+    ScreenSpaceOffsetY := CenterY + (YOffset * deltaY) ; Calcs the Y offset from center 
+    return [ScreenSpaceOffsetX, ScreenSpaceOffsetY]
+}

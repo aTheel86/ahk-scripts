@@ -10,8 +10,16 @@ class GUIManager {
     }
 
     InitializeGUI() {
-        this.CoordText := gGUI.Add("Text", "x" CtPixel(28.3, "X") " y" CtPixel(95.1, "Y") " w" CtPixel(21.2, "X") " cLime Center", "XXXXXXXX YYYYYYYY")
-        this.CoordText.SetFont("s" CalculateFontSize(1) " bold", "Segoe UI")
+        this.CoordText := gGUI.Add(
+            "Text",
+            "x" CtPixel(28.3,"X")
+            . " y" CtPixel(92.0,"Y")
+            . " w" CtPixel(21.2,"X")
+            . " h" CtPixel(4.0,"Y")
+            . " cLime Center",
+            "XXXXXXXX YYYYYYYY"
+        )
+        this.CoordText.SetFont("s" CalculateFontSize(2) " bold", "Segoe UI")
 
         this.StatusText := gGUI.Add("Text", "x" CtPixel(6.9, "X") " y" CtPixel(92.9166, "Y") " cWhite", "Script")
         this.StatusText.SetFont("s" CalculateFontSize(1) " bold", "Segoe UI")
@@ -69,8 +77,10 @@ class GUIManager {
             this.AutoTradeRepText.Visible := false
         }
     
-        MouseGetPos(&MouseX, &MouseY)
-        this.CoordText.Value := Format("X: {:.2f}%, Y: {:.2f}%", CtPercent(MouseX, "X"), CtPercent(MouseY, "Y"))
+        ;MouseGetPos(&MouseX, &MouseY)
+        ;this.CoordText.Value := Format("X: {:.2f}%, Y: {:.2f}%", CtPercent(MouseX, "X"), CtPercent(MouseY, "Y"))
+        ;UpdatePlayerCoords()
+        this.CoordText.Value := Format("({:d}, {:d})", playerGameCoords[1], playerGameCoords[2])
         this.StatusText.SetFont(A_IsSuspended ? "cff9c9c" : "c16ff58")
         this.HealthPotText.SetFont(bTryHPPotting ? "c16ff58" : "cff9c9c")
         this.ManaPotText.SetFont(bTryManaPotting ? "c16ff58" : "cff9c9c")
