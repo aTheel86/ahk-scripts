@@ -89,7 +89,7 @@ ShopEntrance := NodeInfo("ShopEntrance",,, [93,178])
 ShopEntrance2 := NodeInfo("ShopEntrance2",,, [89,181])
 ShopEntrance3 := NodeInfo("ShopEntrance3",,, [91,180])
 ShopEntrance4 := NodeInfo("ShopEntrance4",,, [90,178])
-Shop_WP1 := NodeInfo("Shop_WP1",,, [118,172])
+Shop_WP1 := NodeInfo("Shop_WP1",,, [130,172])
 
 ; Farm Navigation to Blacksmith
 BlackSmithEntrance := NodeInfo("BlacksmithEntrance",,, [111,193])
