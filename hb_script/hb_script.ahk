@@ -28,6 +28,7 @@ SetWorkingDir A_InitialWorkingDir ;Forces the script to use the folder it was in
 #Include includes\classes\class_optionsmenumanager.ahk
 #Include includes\classes\class_spellinfo.ahk
 #Include includes\classes\class_statuseffectindicator.ahk
+#Include includes\classes\class_ampsnapindicator.ahk
 #Include includes\classes\class_repbutton.ahk
 #Include includes\classes\class_nodeinfo.ahk
 #Include includes\functions\functions_minimap.ahk
@@ -35,6 +36,7 @@ SetWorkingDir A_InitialWorkingDir ;Forces the script to use the folder it was in
 #Include includes\functions\functions_autopot.ahk
 #Include includes\functions\functions_leveling.ahk
 #Include includes\functions\functions_coordinates.ahk
+#Include includes\functions\functions_amptracker.ahk
 #Include includes\functions\functions_farming.ahk
 #Include includes\functions\functions_messages.ahk
 #Include includes\functions\functions_traderep.ahk
