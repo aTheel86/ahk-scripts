@@ -1,4 +1,4 @@
-Global RepCoolDownTime := 3600000
+Global RepCoolDownTime := 3610000
 Global RepMessageInterval := 90000 ;90 seconds
 Global TopLeftPos := []
 Global TopRightPos := []
@@ -289,12 +289,24 @@ AutoIncognitoRep(*) {
         LastAttemptDecay := A_TickCount
     }
 
-    if (CheckForSuccessfulRep()) {
-        RecentAttempts := 0
-        NextRepMonitorTime := A_TickCount + RepCoolDownTime + Random(5000,10000)
-        RepButtonInst.StartTiming()
-        return
+    ; Success detected: reset attempts, start cooldown, close chat (once)
+Static LastSuccessHandled := 0
+if (CheckForSuccessfulRep()) {
+    RecentAttempts := 0
+    NextRepMonitorTime := A_TickCount + RepCoolDownTime + Random(5000,10000)
+    RepButtonInst.StartTiming()
+
+    ; If the success image lingers, don't spam this branch every 250ms
+    if (A_TickCount - LastSuccessHandled > 3000) {
+        ; Only toggle chat if it appears open
+        try {
+            if (IsImagePresent("images\rep_images\chat_search.png"))
+                Send "{F9}"
+        }
+        LastSuccessHandled := A_TickCount
     }
+    return
+}
 
     if (NextRepMonitorTime > A_TickCount) {
         return
@@ -312,27 +324,51 @@ AutoIncognitoRep(*) {
         return
     }
 
-    ; Attempt to trade
-    try {
-        BlockInput "MouseMove"
-        MouseGetPos(&begin_x, &begin_y)
-        Sleep 10
-        MouseMove(x-20, y+3, 0)
-        Sleep 10
-        Send "{Ctrl down}{Shift down}"
-        Sleep 5
-        Send "{t}"
-        Sleep 10
-    }
-    finally { ; ALWAYS release, even if MouseClick crashes
-        NextRepMonitorTime := A_TickCount + Random(5000,15000)
-        Send "{Shift Up}{Ctrl Up}"
-        Sleep 10
-        MouseMove begin_x, begin_y, 0
-        BlockInput "MouseMoveOff"
-        RecentAttempts++
-        Sleep 1000
-    }
+    ; Attempt to trade (bulletproof: block input, preserve mouse only)
+try {
+    ; Preserve mouse state
+    MouseGetPos(&begin_x, &begin_y)
+    lDown := GetKeyState("LButton", "P")
+    rDown := GetKeyState("RButton", "P")
+
+    ; Block ALL physical input during the incog action so clicks can't interfere
+    BlockInput "On"
+
+    Sleep 10
+    MouseMove(x-20, y+3, 0)
+    Sleep 10
+
+    ; Do NOT preserve modifiers: we intentionally force a clean state
+    Send "{Ctrl down}{Shift down}"
+    Sleep 5
+    Send "{t}"
+    Sleep 10
+}
+finally { ; ALWAYS restore, even if something throws
+    NextRepMonitorTime := A_TickCount + Random(5000,15000)
+
+    ; Safety: never leave modifiers stuck
+    Send "{Ctrl up}{Shift up}{Alt up}"
+    Sleep 10
+
+    ; Restore mouse position + button states
+    MouseMove begin_x, begin_y, 0
+    if (lDown)
+        Send "{LButton down}"
+    else
+        Send "{LButton up}"
+
+    if (rDown)
+        Send "{RButton down}"
+    else
+        Send "{RButton up}"
+
+    ; Re-enable input
+    BlockInput "Off"
+
+    RecentAttempts++
+    Sleep 1000
+}
 
     if (RecentAttempts > 3) {
         NextRepMonitorTime := A_TickCount + 120000 ; 2 min cooldown for too many attempts
