@@ -257,8 +257,11 @@ RequestMenu(*) {
 }
 
 LevelingMenu(*) {
-    OptionsMenu(["1. PretendCorpse", "2. MagicLeveling", "3. Basic Leveling", "4. Slime Leveling", "5. Farming", "6. Test"],
-                ["PretendCorpseLeveling", "ToggleMagicLeveling", "BeginBasicLeveling", "BeginSlimeLeveling", "StartFarming", "Test"])
+    global gCoordsTracking
+    coordsLabel := gCoordsTracking ? "7. Coords:ON" : "7. Coords:OFF"
+
+    OptionsMenu(["1. PretendCorpse", "2. MagicLeveling", "3. Basic Leveling", "4. Slime Leveling", "5. Farming", "6. Test", coordsLabel],
+                ["PretendCorpseLeveling", "ToggleMagicLeveling", "BeginBasicLeveling", "BeginSlimeLeveling", "StartFarming", "Test", "ToggleCoordsTracking"])
 }
 
 UncommonCommands(*) {

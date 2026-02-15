@@ -3,6 +3,9 @@ Global ConfigDir := A_ScriptDir "\configs\user"
 Global ControlDir := A_ScriptDir "\configs\controls"
 
 ; Script config
+
+; Coords tracking (default OFF)
+Global gCoordsTracking := false
 Global LauncherConfig := A_ScriptDir "\configs\launcher_config.ini"  ; launcher INI
 Global ConfigFile := ConfigDir "\" IniRead(LauncherConfig, "Settings", "UserConfigFile")
 Global ControlFile := ControlDir "\" IniRead(ConfigFile, "Configs", "ControlFile")

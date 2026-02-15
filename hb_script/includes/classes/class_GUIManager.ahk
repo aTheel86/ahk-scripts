@@ -20,6 +20,8 @@ class GUIManager {
             "XXXXXXXX YYYYYYYY"
         )
         this.CoordText.SetFont("s" CalculateFontSize(2) " bold", "Segoe UI")
+        ; Default coords display state follows coords tracking toggle.
+        this.CoordText.Visible := gCoordsTracking
 
         this.StatusText := gGUI.Add("Text", "x" CtPixel(6.9, "X") " y" CtPixel(92.9166, "Y") " cWhite", "Script")
         this.StatusText.SetFont("s" CalculateFontSize(1) " bold", "Segoe UI")
@@ -59,6 +61,14 @@ class GUIManager {
     }
 
     UpdateOSD() {
+        ; Coords display should only be visible while coords tracking is enabled.
+        ; When tracking is OFF, hide the lime coordinate text so it doesn't linger frozen on screen.
+        if (gCoordsTracking) {
+            this.CoordText.Visible := true
+        } else {
+            this.CoordText.Visible := false
+        }
+
         for control in this.InvSlotHelpers {
             if IsObject(control) {
                 if (!bDebugMode) {
@@ -80,7 +90,9 @@ class GUIManager {
         ;MouseGetPos(&MouseX, &MouseY)
         ;this.CoordText.Value := Format("X: {:.2f}%, Y: {:.2f}%", CtPercent(MouseX, "X"), CtPercent(MouseY, "Y"))
         ;UpdatePlayerCoords()
-        this.CoordText.Value := Format("({:d}, {:d})", playerGameCoords[1], playerGameCoords[2])
+        if (gCoordsTracking) {
+            this.CoordText.Value := Format("({:d}, {:d})", playerGameCoords[1], playerGameCoords[2])
+        }
         this.StatusText.SetFont(A_IsSuspended ? "cff9c9c" : "c16ff58")
         this.HealthPotText.SetFont(bTryHPPotting ? "c16ff58" : "cff9c9c")
         this.ManaPotText.SetFont(bTryManaPotting ? "c16ff58" : "cff9c9c")

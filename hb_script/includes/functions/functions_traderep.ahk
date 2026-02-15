@@ -334,6 +334,12 @@ try {
     ; Block ALL physical input during the incog action so clicks can't interfere
     BlockInput "On"
 
+    ; IMPORTANT: If the user was holding a mouse button when the rep triggers,
+    ; moving the cursor can behave like a click-drag in-game.
+    ; Force both buttons up during the action, then restore prior state in finally.
+    Send "{LButton up}{RButton up}"
+    Sleep 5
+
     Sleep 10
     MouseMove(x-20, y+3, 0)
     Sleep 10
