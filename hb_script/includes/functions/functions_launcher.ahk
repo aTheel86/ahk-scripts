@@ -59,9 +59,9 @@ LaunchSelectConfig() {
     }
 
     btnLoad := LaunchGUI.Add("Button", "x10 y50 w100", "Select")
-    btnLoad.OnEvent("Click", (*) => (
-        LaunchGUI.Destroy(),
-        ChangeConfig(ConfigFiles[ddl.Text])
+    btnLoad.OnEvent("Click", (*) => ( 
+        ChangeConfig(ConfigFiles[ddl.Text]), 
+        LaunchGUI.Destroy() 
     ))
 
     LaunchGUI.Show("NA")
