@@ -67,6 +67,10 @@ class SpellInfo {
 			MouseMove begin_x, begin_y, 0 ; Move mouse back to original position
 			BlockInput "MouseMoveOff"
 
+			; Post-cast restore (one-shot): for specific wand-required spells, restore main wand + angel after the next cast click.
+			if (this.SpellName = "MiM" || this.SpellName = "InhibitionCasting" || this.SpellName = "Cancel")
+				PostCastRestore_Arm()
+
 			LastCastspell := this.SpellName
 
 			if (this.SpellEffectDuration != "")
@@ -77,4 +81,63 @@ class SpellInfo {
 			}
 		}
 	}
+}
+
+; ───────────────────────────────────────────────────────────────────────────────
+; Post-cast restore helper (MiM / InhibitionCasting / Cancel only)
+; Arms after spell selection, then watches for the next physical LButton click
+; (down → up). On that click, restores main wand (slot 2) + angel (slot 13).
+; Does NOT affect IceStorm.
+; ───────────────────────────────────────────────────────────────────────────────
+global __PCR_Armed := false
+global __PCR_ExpireAt := 0
+global __PCR_PrevDown := false
+global __PCR_SeenDown := false
+
+PostCastRestore_Arm(timeoutMs := 3500) {
+    global __PCR_Armed, __PCR_ExpireAt, __PCR_PrevDown, __PCR_SeenDown
+    __PCR_Armed := true
+    __PCR_ExpireAt := A_TickCount + timeoutMs
+    __PCR_PrevDown := GetKeyState("LButton", "P")
+    __PCR_SeenDown := false
+    SetTimer(PostCastRestore_Tick, 10)
+}
+
+PostCastRestore_Disarm() {
+    global __PCR_Armed
+    __PCR_Armed := false
+    SetTimer(PostCastRestore_Tick, 0)
+}
+
+PostCastRestore_Tick() {
+    global __PCR_Armed, __PCR_ExpireAt, __PCR_PrevDown, __PCR_SeenDown
+
+    if (!__PCR_Armed) {
+        SetTimer(PostCastRestore_Tick, 0)
+        return
+    }
+
+    if (A_TickCount >= __PCR_ExpireAt) {
+        PostCastRestore_Disarm()
+        return
+    }
+
+    down := GetKeyState("LButton", "P")
+
+    ; Detect a fresh click cycle: transition up→down (start), then down→up (finish)
+    if (!__PCR_SeenDown && !__PCR_PrevDown && down)
+        __PCR_SeenDown := true
+
+    if (__PCR_SeenDown && __PCR_PrevDown && !down) {
+        ; Click completed: restore main wand + angel.
+        try {
+            EquipItem([2, 13], true)
+        } catch {
+            ; Fail silently (avoid breaking casting). If needed, we can add debug later.
+        }
+        PostCastRestore_Disarm()
+        return
+    }
+
+    __PCR_PrevDown := down
 }
