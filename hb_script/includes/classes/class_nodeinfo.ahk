@@ -204,7 +204,7 @@ class NodeInfo {
                 key := pos[1] "," pos[2]
 
                 if unique.Has(key) {
-                    Tooltip "history has a duplicate"
+                    ;Tooltip "history has a duplicate"
                     hPos := []
 
                     ; juke
