@@ -68,7 +68,7 @@ farmPlots.Push(NodeInfo("SW_BigFarm_Slot2",,, [71, 108],,,[SW_BigFarm_WP1]))
 farmPlots.Push(NodeInfo("SW_BigFarm_Slot3",,, [64, 105],,,[SW_BigFarm_WP1]))
 farmPlots.Push(NodeInfo("SW_BigFarm_Slot4",,, [60, 102],,,[SW_BigFarm_WP1]))
 farmPlots.Push(NodeInfo("SW_BigFarm_Slot5",,, [55, 98],,,[SW_BigFarm_WP1]))
-farmPlots.Push(NodeInfo("SW_BigFarm_Slot6",,, [55, 93],,,[SW_BigFarm_WP1]))
+farmPlots.Push(NodeInfo("SW_BigFarm_Slot6",,, [54, 92],,,[SW_BigFarm_WP1]))
 farmPlots.Push(NodeInfo("SW_BigFarm_Slot7",,, [73, 93],,,[SW_BigFarm_WP1]))
 farmPlots.Push(NodeInfo("SW_BigFarm_Slot8",,, [81, 94],,,[SW_BigFarm_WP1]))
 farmPlots.Push(NodeInfo("SW_BigFarm_Slot9",,, [87, 97],,,[SW_BigFarm_WP1]))
@@ -140,6 +140,7 @@ seedList.Push(NodeInfo("Seed_Ginseng", "images\node_images\Seed_Ginseng.png",,,[
 ; Pickup
 PickupHandImg := "images\node_images\Pickup_Hand.png"
 CropBarImg := "images\node_images\Crop_bar.png"
+BagFullImg := "images\node_images\bag_full.png"
 ;Pickup_Hand := NodeInfo("Blacksmith", "images\node_images\Blacksmith.png",,,[1.9,13.5])
 
 Test() {
@@ -211,7 +212,6 @@ FarmingCycle() {
     }
 
     if (farmPlotIndex == 0 || seedIndex == 0) {
-        Tooltip "Error in plot or seed index"
         return
     }
 
@@ -234,9 +234,6 @@ FarmingCycle() {
         switch FarmingState {
             case farmingStates[1]: ; "recall_start"
                 if (!FarmingRecall()) {
-                    Tooltip "Error in 'recall_start': trying to recall"
-                    Sleep 1000
-                    Tooltip ""
                     StopFarming()
                 }
                 FarmingState := farmingStates[2]
@@ -246,7 +243,6 @@ FarmingCycle() {
                 FarmingState := farmingStates[3]
 
             case farmingStates[3]: ; "get_in_farm_plot"
-                ;ToolTip "Trying to get in the get in farm spot"
                 if !GetInFarmSpot() {
                     StopFarming()
                     return
@@ -254,18 +250,15 @@ FarmingCycle() {
                 FarmingState := farmingStates[4]
             
             case farmingStates[4]: ; "change_tools"
-                ;ToolTip "Trying to cycle tool"
                 CycleTool()
                 FarmingState := farmingStates[5]
 
             case farmingStates[5]: ; "sow_fields"
-                ;ToolTip "Trying to sow fields"
                 SowFields()
                 FarmingState := farmingStates[6]
 
             case farmingStates[6]: ; "recall_for_shop"
                 if (!FarmingRecall()) {
-                    Tooltip "Error in 'recall_for_shop': trying to recall"
                     StopFarming()
                 }
                 FarmingState := farmingStates[7]
@@ -280,7 +273,6 @@ FarmingCycle() {
 
             case farmingStates[9]: ; "enter_shop"
                 if (!EnterShop()) {
-                    Tooltip "Error in farming trying to enter shop"
                     StopFarming()
                 }
                 FarmingState := farmingStates[10]
@@ -291,7 +283,6 @@ FarmingCycle() {
 
             case farmingStates[11]: ; "exit_shop"
                 if (!ExitShop()) {
-                    Tooltip "Error in farming trying to exit shop"
                     StopFarming()
                 }
                 FarmingState := farmingStates[12]
@@ -306,7 +297,6 @@ FarmingCycle() {
 
             case farmingStates[14]: ; "enter_blacksmith"
                 if (!EnterBlackSmith()) {
-                    Tooltip "Error in farming entering blacksmith"
                     StopFarming()
                 }
                 FarmingState := farmingStates[15]
@@ -451,7 +441,6 @@ MoveSeedsToPosition() {
         Sleep 300
     }
     else {
-        Tooltip "Error: failed to find seeds"
         StopFarming()
     }
 }
@@ -462,7 +451,6 @@ BuySeeds() {
     MouseMove(0, 0, 0)
 
     if (seedIndex == 0) {
-        Tooltip "No seed index assigned"
         StopFarming()
         return
     }
@@ -658,7 +646,6 @@ CheckSeedsRemaining() {
         return true
     }
     else {
-        ;Tooltip "Out of seeds"
         bNeedSeeds := true
         return false
     }      
@@ -709,6 +696,19 @@ DoesCropExist(square) {
 	return false
 }
 
+IsBagFull(*) {
+    X1 := 16
+    X2 := 110
+    Y1 := 528
+    Y2 := 544
+
+    if (ImageSearch(&Px, &Py, X1, Y1, X2, Y2, "*TransBlack " BagFullImg)) {
+        return true
+    }
+	return false
+}
+
+
 PlantCropInSquare(square) {
     OpenBag()
     Sleep 250
@@ -758,6 +758,8 @@ HarvestSwingDown() {
 HarvestCrops() {
     global bNeedSeeds
 
+    static bBagIsFull := false
+
     Loop {
         if (!farmingActive) {
             return
@@ -782,15 +784,16 @@ HarvestCrops() {
             if (!DoesCropExist(square)) {
                 bMissingACrop := true
 
-                if (DoesProduceExist(square)) {
+                if (!bBagIsFull && DoesProduceExist(square)) {
                     PickUp()
-                    Sleep 500
+                    Sleep 100
                     curPos := farmPlots[farmPlotIndex].WorldCoordinates
                     DesiredPosition := [curPos[1] + i, curPos[2] + 1]
                     MoveToWorldCoord(DesiredPosition)
-                    Sleep 1500
+                    Sleep 1000
                     PickUp()
-                    Sleep 500
+                    bBagIsFull := IsBagFull()
+                    Sleep 100
                     MoveToWorldCoord(farmPlots[farmPlotIndex].WorldCoordinates)
                     Sleep 500
                 }
@@ -831,7 +834,7 @@ PickUp() {
     Sleep 150
     Send("{RButton up}")
     Send("{Shift up}")
-    Sleep 500
+    Sleep 300
 }
 
 MoveToWorldCoord(WorldCoordinates) {
