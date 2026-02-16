@@ -12,8 +12,7 @@ ChangeConfig(newFile) {
     ; Persist choice in Launcher.ini
     IniWrite(FileNameOnly, LauncherConfig, "Settings", "UserConfigFile")
 
-    ; Reload spells immediately (is this needed???)
-    ;LoadSpellsFromConfig(ControlCfgFile)
+    Reload
 }
 
 LaunchSelectConfig() {
