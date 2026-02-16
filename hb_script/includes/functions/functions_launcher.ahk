@@ -1,22 +1,29 @@
 global LaunchGUI
 
 ChangeConfig(newFile) {
-    global ConfigFile
+    global ConfigFile, ConfigDir, LauncherConfig
 
-    ; Store just the filename
-    FileNameOnly := RegExReplace(newFile, "^.*\\", "")
+    ; new selection (filename only)
+    NewName := RegExReplace(newFile, "^.*\\", "")
 
-    ; Update global
-    ConfigFile := ConfigDir "\" FileNameOnly
+    ; current active (filename only)
+    CurName := ConfigFile ? RegExReplace(ConfigFile, "^.*\\", "") : ""
 
-    ; Persist choice in Launcher.ini
-    IniWrite(FileNameOnly, LauncherConfig, "Settings", "UserConfigFile")
+    ; If same config, do nothing (prevents reload loop)
+    if (NewName = CurName) {
+        return false
+    }
+
+    ; Update global + persist
+    ConfigFile := ConfigDir "\" NewName
+    IniWrite(NewName, LauncherConfig, "Settings", "UserConfigFile")
 
     Reload
+    return true
 }
 
 LaunchSelectConfig() {
-    global LaunchGUI
+    global LaunchGUI, ConfigFile, ConfigDir, WinTitle
 
     if WinActive(WinTitle) {
         ;return
@@ -25,7 +32,7 @@ LaunchSelectConfig() {
     LaunchGUI := Gui("+AlwaysOnTop", "Choose Config")
     LaunchGUI.SetFont("s10", "Segoe UI")
 
-    ConfigFiles := Map()   ; maps filename -> full path
+    ConfigFiles := Map()
     displayList := []
 
     Loop Files, ConfigDir "\*.ini" {
@@ -40,14 +47,12 @@ LaunchSelectConfig() {
 
     ddl := LaunchGUI.Add("DropDownList", "w250 vChosenCfg", displayList)
 
-    ; --- preselect currently active config ---
+    ; preselect current config
     if (ConfigFile) {
-        ; strip path -> filename only
         ActiveFile := RegExReplace(ConfigFile, "^.*\\", "")
-        ; find its position in the list
         for idx, name in displayList {
             if (name = ActiveFile) {
-                ddl.Choose(idx) ; select it
+                ddl.Choose(idx)
                 break
             }
         }
@@ -55,8 +60,8 @@ LaunchSelectConfig() {
 
     btnLoad := LaunchGUI.Add("Button", "x10 y50 w100", "Select")
     btnLoad.OnEvent("Click", (*) => (
-        ChangeConfig(ConfigFiles[ddl.Text]),
-        LaunchGUI.Destroy()
+        LaunchGUI.Destroy(),
+        ChangeConfig(ConfigFiles[ddl.Text])
     ))
 
     LaunchGUI.Show("NA")
