@@ -490,7 +490,10 @@ SellItemsOnDefaultSlot() {
     local bHitMaximumItems := false
 
     PreSellSpotX := DefaultItemLandingPos[1] - CtPixel(7, "X")
-    X1 := CtPixel(1, "X"), Y1 := CtPixel(75, "Y"), X2 := CtPixel(22, "X"), Y2 := CtPixel(91, "Y")
+    X1 := CtPixel(1, "X")
+    Y1 := CtPixel(75, "Y")
+    X2 := CtPixel(22, "X")
+    Y2 := CtPixel(91, "Y")
 
     Loop 18 {
         MouseClick "left", DefaultItemLandingPos[1], DefaultItemLandingPos[2], 2       
@@ -756,7 +759,7 @@ HarvestSwingDown(direction := directions.Down) {
 }
 
 CycleOverCrops(bShouldPlant := false) {
-    bBagIsFull := false
+    static bBagIsFull := false
 
     bMissingACrop := false
 
@@ -772,7 +775,7 @@ CycleOverCrops(bShouldPlant := false) {
                 curPos := farmPlots[farmPlotIndex].WorldCoordinates
                 DesiredPosition := [curPos[1] + i, curPos[2] + 1]
                 MoveToWorldCoord(DesiredPosition)
-                Sleep 1000
+                Sleep 500
                 PickUp()
                 bBagIsFull := IsBagFull()
                 Sleep 100
@@ -791,6 +794,9 @@ CycleOverCrops(bShouldPlant := false) {
                     }
                 }
             }
+        }
+        else {
+            bBagIsFull := false
         }
     }
 
