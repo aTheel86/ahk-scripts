@@ -144,7 +144,7 @@ BagFullImg := "images\node_images\bag_full.png"
 ;Pickup_Hand := NodeInfo("Blacksmith", "images\node_images\Blacksmith.png",,,[1.9,13.5])
 
 Test() {
-    MouseMove(CenterX, CenterY, 0)
+    RepairAll()
 }
 
 StartFarming() {
@@ -729,21 +729,21 @@ PlantInitialCrop() {
     }
 }
 
-HarvestSwingDown() {
+HarvestSwingDown(direction := directions.Down) {
     static NextToolCycleTime := 0
 
     if (NextToolCycleTime = 0)
         NextToolCycleTime := A_TickCount + 40000
 
-    if (DoesCropExist(directions.Down)) {
-        MouseMove(directions.Down[1], directions.Down[2], 0)
+    if (DoesCropExist(direction)) {
+        MouseMove(direction[1], direction[2], 0)
         Send("{RButton down}")
 
         RandomLoopTime := A_TickCount + Random(5000, 10000)
 
         Loop {
             Sleep 500
-        } Until !DoesCropExist(directions.Down) || (A_TickCount >= RandomLoopTime)
+        } Until !DoesCropExist(direction) || (A_TickCount >= RandomLoopTime)
 
         Send("{RButton up}")
 
@@ -755,10 +755,50 @@ HarvestSwingDown() {
     }
 }
 
+CycleOverCrops(bShouldPlant := false) {
+    static bBagIsFull := false
+
+    bMissingACrop := false
+
+    for idx, square in FarmPositionsLtR {
+        i := idx - 2   ; 1→-1, 2→0, 3→1
+
+        if (!DoesCropExist(square)) {
+            bMissingACrop := true
+
+            if (!bBagIsFull && DoesProduceExist(square)) {
+                PickUp()
+                Sleep 100
+                curPos := farmPlots[farmPlotIndex].WorldCoordinates
+                DesiredPosition := [curPos[1] + i, curPos[2] + 1]
+                MoveToWorldCoord(DesiredPosition)
+                Sleep 1000
+                PickUp()
+                bBagIsFull := IsBagFull()
+                Sleep 100
+                MoveToWorldCoord(farmPlots[farmPlotIndex].WorldCoordinates)
+                Sleep 500
+            }
+            else if (bShouldPlant) {
+                PlantCropInSquare(square)
+                Sleep 100
+                if !DoesCropExist(square) {
+                    ClearEnemies()
+                    if !GetInFarmSpot() {
+                        StopFarming()
+                        Send("{RButton up}")
+                        return
+                    }
+                }
+            }
+        }
+    }
+
+    return bMissingACrop
+}
+
 HarvestCrops() {
     global bNeedSeeds
-
-    static bBagIsFull := false
 
     Loop {
         if (!farmingActive) {
@@ -776,43 +816,9 @@ HarvestCrops() {
         Send("{RButton up}")
         ClearEnemies()
 
-        bMissingACrop := false
+        bCropMissing := CycleOverCrops(true)
 
-        for idx, square in FarmPositionsLtR {
-            i := idx - 2   ; 1→-1, 2→0, 3→1
-
-            if (!DoesCropExist(square)) {
-                bMissingACrop := true
-
-                if (!bBagIsFull && DoesProduceExist(square)) {
-                    PickUp()
-                    Sleep 100
-                    curPos := farmPlots[farmPlotIndex].WorldCoordinates
-                    DesiredPosition := [curPos[1] + i, curPos[2] + 1]
-                    MoveToWorldCoord(DesiredPosition)
-                    Sleep 1000
-                    PickUp()
-                    bBagIsFull := IsBagFull()
-                    Sleep 100
-                    MoveToWorldCoord(farmPlots[farmPlotIndex].WorldCoordinates)
-                    Sleep 500
-                }
-                else {
-                    PlantCropInSquare(square)
-                    Sleep 100
-                    if !DoesCropExist(square) {
-                        ClearEnemies()
-                        if !GetInFarmSpot() {
-                            StopFarming()
-                            Send("{RButton up}")
-                            return
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!bMissingACrop) {
+        if (!bCropMissing) {
             HarvestSwingDown()
         }
 
@@ -822,6 +828,10 @@ HarvestCrops() {
             return
         }
     } Until (bNeedSeeds)
+
+    HarvestSwingDown(directions.RightDown)
+    HarvestSwingDown(directions.LeftDown)
+    CycleOverCrops(false)
 
     Send("{RButton up}")
 }
