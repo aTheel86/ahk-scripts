@@ -769,16 +769,16 @@ CycleOverCrops(bShouldPlant := false) {
         if (!DoesCropExist(square)) {
             bMissingACrop := true
 
+            PickUp()
+            bBagIsFull := IsBagFull()
+
             if (!bBagIsFull && DoesProduceExist(square)) {
-                PickUp()
                 Sleep 100
                 curPos := farmPlots[farmPlotIndex].WorldCoordinates
                 DesiredPosition := [curPos[1] + i, curPos[2] + 1]
                 MoveToWorldCoord(DesiredPosition)
                 Sleep 500
                 PickUp()
-                bBagIsFull := IsBagFull()
-                Sleep 100
                 MoveToWorldCoord(farmPlots[farmPlotIndex].WorldCoordinates)
                 Sleep 500
             }
@@ -794,9 +794,6 @@ CycleOverCrops(bShouldPlant := false) {
                     }
                 }
             }
-        }
-        else {
-            bBagIsFull := false
         }
     }
 
@@ -850,7 +847,7 @@ PickUp() {
     Sleep 150
     Send("{RButton up}")
     Send("{Shift up}")
-    Sleep 300
+    Sleep 500
 }
 
 MoveToWorldCoord(WorldCoordinates) {
