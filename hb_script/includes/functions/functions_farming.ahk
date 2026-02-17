@@ -756,7 +756,7 @@ HarvestSwingDown(direction := directions.Down) {
 }
 
 CycleOverCrops(bShouldPlant := false) {
-    static bBagIsFull := false
+    bBagIsFull := false
 
     bMissingACrop := false
 
