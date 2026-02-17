@@ -197,15 +197,12 @@ EnchantItemCheck(*) {
                 else {
                     icon := "images\enchanting\Disenchant.png"
                 }
-
-                MarkIndicators.ShowEnchantIcon(icon)
             }
         }
 
         bStatsGathered := true
     }
     else {
-        MarkIndicators.HideAll()
         bStatsGathered := false
     }
 }
