@@ -1,5 +1,3 @@
-Global bIsEnchantingMode := false
-
 ValueImgs := Map()
 
 InitValueImgs(dir := "images\enchanting\values\") {
@@ -185,15 +183,8 @@ GetItemStats(*) {
     return found
 }
 
-EnchantingLoop(*) {
-    global bIsEnchantingMode
-
+EnchantItemCheck(*) {
     Static bStatsGathered := false
-
-    if !ImageSearch(&x, &y, 0, 0, 800, 600, "*TransBlack images\enchanting\Enchanting.png") {
-        SetTimer(EnchantingLoop, 0)
-        bIsEnchantingMode := false
-    }
 
     if GetKeyState("LButton", "P") {
         if (!bStatsGathered) {
@@ -217,18 +208,5 @@ EnchantingLoop(*) {
         MarkIndicators.HideAll()
         bStatsGathered := false
     }
-}
-
-~^e::{
-    global bIsEnchantingMode
-
-    bIsEnchantingMode := !bIsEnchantingMode
-
-    if (!bIsEnchantingMode) {
-        ; do something here?
-    }
-
-    Sleep 100
-    SetTimer(EnchantingLoop, 500)
 }
     

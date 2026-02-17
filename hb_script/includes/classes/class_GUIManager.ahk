@@ -10,6 +10,7 @@ class GUIManager {
     }
 
     InitializeGUI() {
+        /*
         this.CoordText := gGUI.Add(
             "Text",
             "x" CtPixel(28.3,"X")
@@ -20,8 +21,7 @@ class GUIManager {
             "XXXXXXXX YYYYYYYY"
         )
         this.CoordText.SetFont("s" CalculateFontSize(2) " bold", "Segoe UI")
-        ; Default coords display state follows coords tracking toggle.
-        this.CoordText.Visible := gCoordsTracking
+        */
 
         this.StatusText := gGUI.Add("Text", "x" CtPixel(6.9, "X") " y" CtPixel(92.9166, "Y") " cWhite", "Script")
         this.StatusText.SetFont("s" CalculateFontSize(1) " bold", "Segoe UI")
@@ -61,14 +61,6 @@ class GUIManager {
     }
 
     UpdateOSD() {
-        ; Coords display should only be visible while coords tracking is enabled.
-        ; When tracking is OFF, hide the lime coordinate text so it doesn't linger frozen on screen.
-        if (gCoordsTracking) {
-            this.CoordText.Visible := true
-        } else {
-            this.CoordText.Visible := false
-        }
-
         for control in this.InvSlotHelpers {
             if IsObject(control) {
                 if (!bDebugMode) {
@@ -90,80 +82,12 @@ class GUIManager {
         ;MouseGetPos(&MouseX, &MouseY)
         ;this.CoordText.Value := Format("X: {:.2f}%, Y: {:.2f}%", CtPercent(MouseX, "X"), CtPercent(MouseY, "Y"))
         ;UpdatePlayerCoords()
-        if (gCoordsTracking) {
-            this.CoordText.Value := Format("({:d}, {:d})", playerGameCoords[1], playerGameCoords[2])
-        }
+
         this.StatusText.SetFont(A_IsSuspended ? "cff9c9c" : "c16ff58")
         this.HealthPotText.SetFont(bTryHPPotting ? "c16ff58" : "cff9c9c")
         this.ManaPotText.SetFont(bTryManaPotting ? "c16ff58" : "cff9c9c")
     }
 }
-
-class ImageOverlay {
-    __New() {
-        this.sfx1 := this._MakeIconGui()
-        this.sfx2 := this._MakeIconGui()
-
-        this.sfx1.busy := false
-        this.sfx2.busy := false
-
-        this.off1 := {x: -12, y: 40}
-        this.off2 := {x: -12, y: 50}
-
-        this.w1 := 8, this.h1 := 8
-        this.w2 := 8, this.h2 := 8
-    }
-
-    _MakeIconGui() {
-        g := Gui("+AlwaysOnTop -Caption +ToolWindow +E0x20")
-        g.BackColor := "Fuchsia"
-        WinSetTransColor("Fuchsia", g.Hwnd)
-        pic := g.AddPicture("x0 y0 w8 h8", "")
-        pic.Visible := false
-
-        SetTimer(this.Update.Bind(this), 50)
-
-        return {g:g, pic:pic}
-    }
-
-    ShowEnchantIcon(imgPath, w := 8, h := 8) {
-        if (!this.sfx1.busy) {
-            slot := this.sfx1, this.w1 := w, this.h1 := h
-        } else if (!this.sfx2.busy) {
-            slot := this.sfx2, this.w2 := w, this.h2 := h
-        } else
-            return
-
-        slot.busy := true
-        slot.pic.Value := imgPath
-        slot.pic.Move(0, 0, w, h)
-        slot.pic.Visible := true
-        this._PositionSlot(slot, w, h)
-    }
-
-    Update() {
-        if (this.sfx1.busy)
-            this._PositionSlot(this.sfx1, this.w1, this.h1)
-        if (this.sfx2.busy)
-            this._PositionSlot(this.sfx2, this.w2, this.h2)
-    }
-
-    _PositionSlot(slot, w, h) {
-        MouseGetPos(&mx, &my)
-        off := (slot = this.sfx1) ? this.off1 : this.off2
-        slot.g.Show("NA x" (mx + off.x) " y" (my + off.y) " w" w " h" h)
-    }
-
-    HideAll() {
-        for _, slot in [this.sfx1, this.sfx2] {
-            slot.pic.Visible := false
-            slot.g.Hide()
-            slot.busy := false
-        }
-    }
-}
-
-global MarkIndicators := ImageOverlay()
 
 class DebugROI {
     __New(borderPx := 3, color := "Lime") {

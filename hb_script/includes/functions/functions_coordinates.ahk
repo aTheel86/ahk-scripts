@@ -76,31 +76,3 @@ UpdatePlayerCoords() {
     UpdateMiniMapCoords()
     CalculatePlayerCoordinates()
 }
-
-
-; -----------------------------
-; Coords tracking toggle (menu-controlled)
-; -----------------------------
-EnableCoordsTracking() {
-    global gCoordsTracking
-    if gCoordsTracking
-        return
-    gCoordsTracking := true
-    SetTimer(UpdatePlayerCoords, 250)
-}
-
-DisableCoordsTracking() {
-    global gCoordsTracking
-    if !gCoordsTracking
-        return
-    gCoordsTracking := false
-    SetTimer(UpdatePlayerCoords, 0)
-}
-
-ToggleCoordsTracking(*) {
-    global gCoordsTracking
-    if gCoordsTracking
-        DisableCoordsTracking()
-    else
-        EnableCoordsTracking()
-}
