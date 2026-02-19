@@ -5,7 +5,7 @@ class NodeInfo {
     AltImagepath := "" ; Useful for night variants
     WorldCoordinates := [0,0] ; In cases where we don't use an image we can apply world coordintes (useful for traveling)
 	Location := [0,0] ; World location of the Image found
-    ClickOffset := [0,0] ; If applicable, the offset from the location, useful for when we need to click an area offset from the image (converted to pixels in constructor)
+    ClickOffset := [0,0] ; In Pixels! If applicable, the offset from the location, useful for when we need to click an area offset from the image
     Value := ""
     StartX := 0
     StartY := 0
@@ -21,7 +21,7 @@ class NodeInfo {
         this.Imagepath := Imagepath
         this.AltImagepath := AltImagepath
         this.WorldCoordinates := WorldCoordinates
-        this.ClickOffset := [CtPixel(ClickOffset[1], "X"), CtPixel(ClickOffset[2], "Y")]
+        this.ClickOffset := ClickOffset
         this.Value := Value
         this.ConnectedNodes := ConnectedNodes
     }

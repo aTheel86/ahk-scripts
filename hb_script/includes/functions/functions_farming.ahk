@@ -46,7 +46,7 @@ MessageDialogueBoxColor := 0x8C715A
 
 ;NoItemImage := "images\node_images\NoItemImage.png"
 SellListAlreadyImage := "images\node_images\SellListAlready.png"
-Okay_Menu_Prompt := NodeInfo("Okay_Menu", "images\node_images\Okay_Menu_Prompt.png",,,[1,1])
+Okay_Menu_Prompt := NodeInfo("Okay_Menu", "images\node_images\Okay_Menu_Prompt.png",,,[8,6])
 Okay_Menu_Prompt.SetSearchCoords(CtPixel(23, "X"), CtPixel(63, "Y"), CtPixel(52, "X"), CtPixel(82, "Y"))
 
 ; Nodes for farming
@@ -96,52 +96,51 @@ BlackSmithEntrance := NodeInfo("BlacksmithEntrance",,, [111,193])
 BM_WP1 := NodeInfo("BM_WP1",,, [108,196])
 
 ; Shop Interior (for selling, buying, resting)
-ShopExit := NodeInfo("ShopExit", "images\node_images\Shop_Exit.png",,,[2,17])
-ShopKeeper := NodeInfo("ShopKeeper", "images\node_images\ShopKeeper.png",,,[5,11])
-BuyMiscButton := NodeInfo("BuyMiscButton", "images\node_images\Buy_Misc.png",,,[2,1])
-QuantitySelect := NodeInfo("QuantitySelect", "images\node_images\Quantity.png",,,[11.3,1.2])
-PurchaseButton := NodeInfo("PurchaseButton", "images\node_images\Purchase_Button.png",,,[4.6,1.7])
-RestButton := NodeInfo("RestButton", "images\node_images\RestButton.png",,,[2,1])
+ShopExit := NodeInfo("ShopExit", "images\node_images\Shop_Exit.png",,,[16,102])
+ShopKeeper := NodeInfo("ShopKeeper", "images\node_images\ShopKeeper.png",,,[40,66])
+BuyMiscButton := NodeInfo("BuyMiscButton", "images\node_images\Buy_Misc.png",,,[16,6])
+QuantitySelect := NodeInfo("QuantitySelect", "images\node_images\Quantity.png",,,[90,7])
+PurchaseButton := NodeInfo("PurchaseButton", "images\node_images\Purchase_Button.png",,,[37,10])
+RestButton := NodeInfo("RestButton", "images\node_images\RestButton.png",,,[16,6])
 SellMaximum := NodeInfo("SellMaximum", "images\node_images\SellMaximum.png")
-SellItemsButton := NodeInfo("SellButton", "images\node_images\SellItems_Button.png",,,[3.6,1])
+SellItemsButton := NodeInfo("SellButton", "images\node_images\SellItems_Button.png",,,[29,6])
 SellDialogueBox := NodeInfo("SellQuantityBox", "images\node_images\quantityBoxImage.png")
-SellConfirmButton := NodeInfo("SellConfirm", "images\node_images\Sell_Confirm_Button.png",,,[3.6,1.2])
+SellConfirmButton := NodeInfo("SellConfirm", "images\node_images\Sell_Confirm_Button.png",,,[29,7])
 SellListMenu := NodeInfo("SellListMenu", "images\node_images\SellListMenu.png")
 InventoryMenu := NodeInfo("InventoryMenu", "images\node_images\InventoryMenu.png")
-ItemsForSaleMenu := NodeInfo("ItemsForSale", "images\node_images\ItemsForSale.png",,,[2,0])
+ItemsForSaleMenu := NodeInfo("ItemsForSale", "images\node_images\ItemsForSale.png",,,[16,0])
 
 ; Blacksmith Interior (for repairing)
-Blacksmith := NodeInfo("Blacksmith", "images\node_images\Blacksmith.png",,,[1.9,13.5])
-RepairAllButton := NodeInfo("RepairAllButton", "images\node_images\Repair_All.png",,,[2,1])
-RepairButton := NodeInfo("RepairButton", "images\node_images\Repair.png",,,[2,1])
+Blacksmith := NodeInfo("Blacksmith", "images\node_images\Blacksmith.png",,,[15,81])
+RepairAllButton := NodeInfo("RepairAllButton", "images\node_images\Repair_All.png",,,[22,7])
+RepairButton := NodeInfo("RepairButton", "images\node_images\Repair.png",,,[12,7])
 
 ; Recall Landing Spot
-RecallLandingSpot := NodeInfo("RecallLandingSpot",,,[125, 151])
+RecallLandingSpot := NodeInfo("RecallLandingSpot",,,[1000,906])
 
 ; Seeds 
 Seed_Img := "images\node_images\Seed_Img.png"
 seedIndex := 0
 seedList := []
-seedList.Push(NodeInfo("Seed_Watermelon", "images\node_images\Seed_Watermelon.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_Pumpkin", "images\node_images\Seed_Pumpkin.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_Garlic", "images\node_images\Seed_Garlic.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_Barley", "images\node_images\Seed_Barley.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_Carrot", "images\node_images\Seed_Carrot.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_Radish", "images\node_images\Seed_Radish.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_Corn", "images\node_images\Seed_Corn.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_Chinese", "images\node_images\Seed_Chinese.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_Melon", "images\node_images\Seed_Melon.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_Tomato", "images\node_images\Seed_Tomato.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_Grapes", "images\node_images\Seed_Grapes.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_BlueGrapes", "images\node_images\Seed_BlueGrapes.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_Mushroom", "images\node_images\Seed_Mushroom.png",,,[0,1.2], 4))
-seedList.Push(NodeInfo("Seed_Ginseng", "images\node_images\Seed_Ginseng.png",,,[0,1.2], 4))
+seedList.Push(NodeInfo("Seed_Watermelon", "images\node_images\Seed_Watermelon.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_Pumpkin", "images\node_images\Seed_Pumpkin.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_Garlic", "images\node_images\Seed_Garlic.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_Barley", "images\node_images\Seed_Barley.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_Carrot", "images\node_images\Seed_Carrot.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_Radish", "images\node_images\Seed_Radish.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_Corn", "images\node_images\Seed_Corn.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_Chinese", "images\node_images\Seed_Chinese.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_Melon", "images\node_images\Seed_Melon.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_Tomato", "images\node_images\Seed_Tomato.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_Grapes", "images\node_images\Seed_Grapes.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_BlueGrapes", "images\node_images\Seed_BlueGrapes.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_Mushroom", "images\node_images\Seed_Mushroom.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Seed_Ginseng", "images\node_images\Seed_Ginseng.png",,,[0,7], 4))
 
 ; Pickup
 PickupHandImg := "images\node_images\Pickup_Hand.png"
 CropBarImg := "images\node_images\Crop_bar.png"
 BagFullImg := "images\node_images\bag_full.png"
-;Pickup_Hand := NodeInfo("Blacksmith", "images\node_images\Blacksmith.png",,,[1.9,13.5])
 
 Test() {
     RepairAll()
@@ -374,17 +373,17 @@ EnterBlackSmith() {
 RepairAll() {
     Loop 10 {
         if (Blacksmith.IsOnScreen()) {
-            Blacksmith.Click()
-            Sleep 100
-            if (RepairAllButton.IsOnScreen()) {
-                RepairAllButton.Click()
-                Sleep 100
-                MouseMove(0, 0, 0)
-                Sleep 100
-                if (RepairButton.IsOnScreen()) {
-                    RepairButton.Click()
-                }
-            }
+            Blacksmith.Click() 
+        }
+        Sleep 200
+        if (RepairAllButton.IsOnScreen()) {
+            RepairAllButton.Click()
+        }
+        Sleep 200
+        MouseMove(0, 0, 0)
+        Sleep 200
+        if (RepairButton.IsOnScreen()) {
+            RepairButton.Click()
             return
         }
         Sleep 500
@@ -540,18 +539,22 @@ SowFields() {
 }
 
 FarmingRecall() {
-    local MaxAttempts := 4
+    TmpY := 0
 
     EquipItem(8) ; staff
     Sleep 100
 
-    Loop MaxAttempts {
-        ;BlockInput "MouseMove"
+    Loop 3 {
+
+        if (A_Index = 3) {
+            TmpY := YOffset
+        }
+
         CastSpellByName("Recall")
         Sleep 100
-        MouseMove(CenterX, CenterY, 0)
+        MouseMove(CenterX, CenterY - TmpY, 0)
         Sleep 1700
-        MouseClick("L", CenterX, CenterY)
+        MouseClick("L", CenterX, CenterY - TmpY)
         Sleep 500
 
         if (RecallLandingSpot.IsPlayerNearby()) {

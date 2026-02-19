@@ -169,8 +169,8 @@ ItemActivation(*) => Send("{PgUp}")
 
 Input_Checked_Img := "images\node_images\Settings_Checked.png"
 
-Dialog_T := NodeInfo("Dialog_T", "images\node_images\Dialog_T.png",,, [-2,0.8])
-Menu_Graphics_Button := NodeInfo("Menu_Graphics_Button", "images\node_images\Options_Menu_Corner.png",,, [-9.5,-49.5])
+Dialog_T := NodeInfo("Dialog_T", "images\node_images\Dialog_T.png",,, [-16,5])
+Menu_Graphics_Button := NodeInfo("Menu_Graphics_Button", "images\node_images\Options_Menu_Corner.png",,, [-76,-297])
 
 DialogTransparency(bTurnOn := true) {
     BlockInput true
@@ -208,8 +208,8 @@ DisableDialogTransparency() {
     DialogTransparency(false)
 }
 
-Input_Button := NodeInfo("Input_Button", "images\node_images\Input_Button.png", "images\node_images\Input_Button_Clicked.png",, [2.6,1.3])
-Shift_Pickup := NodeInfo("Shift_Pickup", "images\node_images\Shift_To_Pickup.png",,, [-2,0.8])
+Input_Button := NodeInfo("Input_Button", "images\node_images\Input_Button.png", "images\node_images\Input_Button_Clicked.png",, [21,8])
+Shift_Pickup := NodeInfo("Shift_Pickup", "images\node_images\Shift_To_Pickup.png",,, [-16,5])
 
 ShiftPickup(bTurnOn := true) {
     BlockInput true

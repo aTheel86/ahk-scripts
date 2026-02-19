@@ -25,7 +25,7 @@ PeaceModeBL_Pixel.Push(CtPixel(97.2, "Y"))
 PeaceModeTR_Pixel.Push(CtPixel(58.3, "X"))
 PeaceModeTR_Pixel.Push(CtPixel(94.3, "Y"))
 
-TradeRepConfirmButton := NodeInfo("TradeRepConfirmButton", "images\node_images\TradeRepConfirmImage.png",,, [2,1])
+TradeRepConfirmButton := NodeInfo("TradeRepConfirmButton", "images\node_images\TradeRepConfirmImage.png",,, [16,6])
 
 ; Example color codes to match
 Global ExpectedColors := ["0x7B7352", "0x8C7329", "0x7B7352", "0x9C8439"]

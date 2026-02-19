@@ -184,26 +184,31 @@ GetItemStats(*) {
 }
 
 EnchantItemCheck(*) {
-    Static bStatsGathered := false
+    goodStats := []
 
     if GetKeyState("LButton", "P") {
-        if (!bStatsGathered) {
-            stats := GetItemStats()
+        stats := GetItemStats()
 
-            for _, s in stats {
-                if IsItemWorthUpgrading(s.name, s.value, ShardFragData) {
-                    icon := "images\enchanting\Upgrade.png"
-                }
-                else {
-                    icon := "images\enchanting\Disenchant.png"
-                }
+        for _, s in stats {
+            if IsItemWorthUpgrading(s.name, s.value, ShardFragData) {
+                goodStats.Push(s.name)
             }
         }
 
-        bStatsGathered := true
-    }
-    else {
-        bStatsGathered := false
+        if (goodStats.Length = 0) {
+            ToolTip("✖ Disenchant")
+        }
+        else {
+            ToolTip("✔ Upgrade:`n" . StrJoin(goodStats, "`n"))
+        }
+
+        SetTimer(() => ToolTip(), -500)
     }
 }
     
+StrJoin(arr, delim := ", ") {
+    out := ""
+    for i, v in arr
+        out .= (i > 1 ? delim : "") v
+    return out
+}
