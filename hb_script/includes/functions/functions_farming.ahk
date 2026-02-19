@@ -91,6 +91,9 @@ ShopEntrance3 := NodeInfo("ShopEntrance3",,, [91,180])
 ShopEntrance4 := NodeInfo("ShopEntrance4",,, [90,178])
 Shop_WP1 := NodeInfo("Shop_WP1",,, [130,172])
 
+; Recall Landing Spot
+RecallLandingSpot := NodeInfo("RecallLandingSpot",,,[125, 151])
+
 ; Farm Navigation to Blacksmith
 BlackSmithEntrance := NodeInfo("BlacksmithEntrance",,, [111,193])
 BM_WP1 := NodeInfo("BM_WP1",,, [108,196])
@@ -114,9 +117,6 @@ ItemsForSaleMenu := NodeInfo("ItemsForSale", "images\node_images\ItemsForSale.pn
 Blacksmith := NodeInfo("Blacksmith", "images\node_images\Blacksmith.png",,,[15,81])
 RepairAllButton := NodeInfo("RepairAllButton", "images\node_images\Repair_All.png",,,[22,7])
 RepairButton := NodeInfo("RepairButton", "images\node_images\Repair.png",,,[12,7])
-
-; Recall Landing Spot
-RecallLandingSpot := NodeInfo("RecallLandingSpot",,,[1000,906])
 
 ; Seeds 
 Seed_Img := "images\node_images\Seed_Img.png"
@@ -545,7 +545,6 @@ FarmingRecall() {
     Sleep 100
 
     Loop 3 {
-
         if (A_Index = 3) {
             TmpY := YOffset
         }
