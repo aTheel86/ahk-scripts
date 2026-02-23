@@ -404,16 +404,13 @@ AttackInCircles(_Speed := 250, _SpeedVariance := 200) {
 }
 
 LookBackAndForth() {
-    Sleep 10
-	Send("{RButton down}")
-	Loop Random(1,5)
+	Loop Random(1,3)
 	{
-		MouseMove CtPixel((50 - SquarePercentageX), "X"), CtPixel(50, "Y")
-		Sleep Random(50,100)
-		MouseMove CtPixel((50 + SquarePercentageX), "X"), CtPixel(50, "Y")
-		Sleep Random(50,150)
+		MouseClick("R", CenterX - SquarePercentageX, CenterY, , 0)
+		Sleep Random(25,150)
+		MouseClick("R", CenterX + SquarePercentageX, CenterY, , 0)
+		Sleep Random(25,75)
 	}
-	Send("{RButton up}")
 	Sleep 10
 }
 
@@ -555,10 +552,9 @@ SlimeLeveling(myGUI, Duration)
 	StopTime := A_TickCount + (Duration * 60 * 1000)
 	
 	LastAttackTime := A_TickCount
-	StartTime_EatFood := A_TickCount
-	Last_RandomBehavior := A_TickCount
-	Interval_EatFood := 300000
-	dist := 2
+	NextRandomBehaviorTime := A_TickCount
+	WanderState := true
+	NextWanderToggle := A_TickCount + Random(12000,18000)
 
 	if WinActive(WinTitle) ; This supposedly stops the hotkey from working outside of the HB client
 	{
@@ -566,10 +562,12 @@ SlimeLeveling(myGUI, Duration)
 		MouseMove CenterX, CenterY  ;Move mouse to center screen
 		SendTextMessage("/shiftpickup")
 
+		; create start node
+		UpdatePlayerCoords()
+		StartingPointNode := NodeInfo("StartNode",,, [playerGameCoords[1],playerGameCoords[2]])
+
 		Loop {
 			i := 0
-			ElapsedTime_EatFood := A_TickCount - StartTime_EatFood
-
 			EnemyCoords := FindAdjacentEnemy()
 			if (EnemyCoords) {
 				Send("{RButton down}")
@@ -586,34 +584,67 @@ SlimeLeveling(myGUI, Duration)
 				} Until !CanAttackCoord(EnemyCoords[1], EnemyCoords[2])
 				Send("{Alt up}")
 				Send("{RButton up}")
-				dist := 2
 				LastAttackTime := A_TickCount
 			}
 			else {
 				MouseMove CenterX, CenterY
 
-				if ((A_TickCount - LastAttackTime) >= 25000) {
-					if (FindAndMove(dist)) {
-						dist := 2
-					}
-					else {
-						dist := Min(++dist, 6)
-					}
-					LastAttackTime := A_TickCount
+				RandomCoords := [0,0]
+				UpdatePlayerCoords()
+
+				; distance threshold (tiles)
+				MaxDist := 9
+				MaxDistSq := MaxDist * MaxDist
+
+				dx := playerGameCoords[1] - StartingPointNode.WorldCoordinates[1]
+				dy := playerGameCoords[2] - StartingPointNode.WorldCoordinates[2]
+				distSq := (dx * dx) + (dy * dy)
+
+				; toggle state when time expires
+				if (A_TickCount >= NextWanderToggle) {
+					WanderState := !WanderState
+					NextWanderToggle := A_TickCount + Random(12000,18000)
 				}
 
-				if ((A_TickCount - Last_RandomBehavior) >= Random(10000,30000)) {
-					;RandomBehavior()
-					; move to nearest slime?
-					Last_RandomBehavior := A_TickCount
+				if (distSq > MaxDistSq) {
+					StartingPointNode.MoveToLocation()
+					Continue
 				}
+				else if (WanderState) {
+					RandomCoords[1] := playerGameCoords[1] + Random(-4, 4)
+					RandomCoords[2] := playerGameCoords[2] + Random(-4, 4)
+					MoveToWorldCoord(RandomCoords)
+					Sleep Random(10,1500)
+				}
+				else if (NextRandomBehaviorTime <= A_TickCount) {
+					Behavior := Random(1,6)
+					RandomOffset := Random(3,8)
+						
+					switch Behavior {
+						case 1:
+							LookBackAndForth()
 
-				if (ElapsedTime_EatFood >= Interval_EatFood) {
-					EatFood()
-					Sleep 100
-					MouseMove CenterX, CenterY
-					Sleep 100
-					StartTime_EatFood := A_TickCount
+						case 2:
+							NW := NodeInfo("NW",,, [playerGameCoords[1] - RandomOffset, playerGameCoords[2] - RandomOffset])
+							NW.MoveToLocation()
+
+						case 3:
+							NE := NodeInfo("NE",,, [playerGameCoords[1] + RandomOffset, playerGameCoords[2] - RandomOffset])
+							NE.MoveToLocation()
+
+						case 4:
+							SW := NodeInfo("SW",,, [playerGameCoords[1] - RandomOffset, playerGameCoords[2] + RandomOffset])
+							SW.MoveToLocation()
+
+						case 5:
+							SE := NodeInfo("SE",,, [playerGameCoords[1] + RandomOffset, playerGameCoords[2] + RandomOffset])
+							SE.MoveToLocation()
+
+						case 6:
+							StartingPointNode.MoveToLocation()
+					}
+							
+					NextRandomBehaviorTime := A_TickCount + Random(8000,15000)
 				}
 
 				if (A_TickCount > StopTime) {
