@@ -14,7 +14,6 @@ inventory must be in default position (unlock it restart game), lock it
 ;
 ; 1  2  3  4  5  6  7
 
-
 global FarmingState := ""
 global farmingActive := false  ; Initialize the farming status as inactive
 global bNeedSeeds := false
@@ -23,21 +22,109 @@ global SeedInvSlot := 12
 global sellSpot := [CtPixel(33.3, "X"),CtPixel(33.3, "Y")]
 global FarmingIndicator := ""
 
-farmingStates := ["recall_start", 
-                  "travel_farm_plot", 
-                  "get_in_farm_plot", 
-                  "change_tools", 
-                  "sow_fields", 
-                  "recall_for_shop", 
-                  "move_to_shop_wp1", 
-                  "move_to_shop",
-                  "enter_shop",
-                  "rest_and_shop",
-                  "exit_shop",
-                  "move_to_blacksmith_wp1",
-                  "move_to_blacksmith",
-                  "enter_blacksmith",
-                  "repair_all"]
+class FARM_STATE {
+    static FARM_RECALL            := "FARM_RECALL"
+    static TRAVEL_FARM_PLOT       := "TRAVEL_FARM_PLOT"
+    static GET_IN_FARM_PLOT       := "GET_IN_FARM_PLOT"
+    static CHANGE_TOOLS           := "CHANGE_TOOLS"
+    static SOW_FIELDS             := "SOW_FIELDS"
+    static MOVE_TO_SHOP_WP1       := "MOVE_TO_SHOP_WP1"
+    static MOVE_TO_SHOP           := "MOVE_TO_SHOP"
+    static ENTER_SHOP             := "ENTER_SHOP"
+    static REST_AND_SHOP          := "REST_AND_SHOP"
+    static EXIT_SHOP              := "EXIT_SHOP"
+    static MOVE_TO_BLACKSMITH_WP1 := "MOVE_TO_BLACKSMITH_WP1"
+    static MOVE_TO_BLACKSMITH     := "MOVE_TO_BLACKSMITH"
+    static ENTER_BLACKSMITH       := "ENTER_BLACKSMITH"
+    static REPAIR_ALL             := "REPAIR_ALL"
+    static MOVE_TO_WAREHOUSE      := "MOVE_TO_WAREHOUSE"
+    static ENTER_WAREHOUSE        := "ENTER_WAREHOUSE"
+    static MAIL_PRODUCE           := "MAIL_PRODUCE"
+    static EXIT_WAREHOUSE         := "EXIT_WAREHOUSE"
+    static EXIT_WAREHOUSE_WP1     := "EXIT_WAREHOUSE_WP1"
+}
+
+DefaultFarmSequence := [
+    FARM_STATE.FARM_RECALL,
+    FARM_STATE.MOVE_TO_SHOP_WP1,
+    FARM_STATE.MOVE_TO_SHOP,
+    FARM_STATE.ENTER_SHOP,
+    FARM_STATE.REST_AND_SHOP,
+    FARM_STATE.EXIT_SHOP,
+    FARM_STATE.MOVE_TO_BLACKSMITH_WP1,
+    FARM_STATE.MOVE_TO_BLACKSMITH,
+    FARM_STATE.ENTER_BLACKSMITH,
+    FARM_STATE.REPAIR_ALL,
+    FARM_STATE.FARM_RECALL,
+    FARM_STATE.TRAVEL_FARM_PLOT,
+    FARM_STATE.GET_IN_FARM_PLOT,
+    FARM_STATE.CHANGE_TOOLS,
+    FARM_STATE.SOW_FIELDS
+]
+
+GinsengSaveSequence := [
+    FARM_STATE.FARM_RECALL,
+    FARM_STATE.MOVE_TO_SHOP_WP1,
+    FARM_STATE.MOVE_TO_WAREHOUSE,
+    FARM_STATE.ENTER_WAREHOUSE,
+    FARM_STATE.MAIL_PRODUCE,
+    FARM_STATE.EXIT_WAREHOUSE,
+    FARM_STATE.MOVE_TO_SHOP,
+    FARM_STATE.ENTER_SHOP,
+    FARM_STATE.REST_AND_SHOP,
+    FARM_STATE.EXIT_SHOP,
+    FARM_STATE.MOVE_TO_BLACKSMITH_WP1,
+    FARM_STATE.MOVE_TO_BLACKSMITH,
+    FARM_STATE.ENTER_BLACKSMITH,
+    FARM_STATE.REPAIR_ALL,
+    FARM_STATE.FARM_RECALL,
+    FARM_STATE.TRAVEL_FARM_PLOT,
+    FARM_STATE.GET_IN_FARM_PLOT,
+    FARM_STATE.CHANGE_TOOLS,
+    FARM_STATE.SOW_FIELDS
+]
+
+GinsengSaveSowFirstSequence := [
+    FARM_STATE.FARM_RECALL,
+    FARM_STATE.TRAVEL_FARM_PLOT,
+    FARM_STATE.GET_IN_FARM_PLOT,
+    FARM_STATE.CHANGE_TOOLS,
+    FARM_STATE.SOW_FIELDS,
+    FARM_STATE.FARM_RECALL,
+    FARM_STATE.MOVE_TO_SHOP_WP1,
+    FARM_STATE.MOVE_TO_WAREHOUSE,
+    FARM_STATE.ENTER_WAREHOUSE,
+    FARM_STATE.MAIL_PRODUCE,
+    FARM_STATE.EXIT_WAREHOUSE,
+    FARM_STATE.MOVE_TO_SHOP,
+    FARM_STATE.ENTER_SHOP,
+    FARM_STATE.REST_AND_SHOP,
+    FARM_STATE.EXIT_SHOP,
+    FARM_STATE.MOVE_TO_BLACKSMITH_WP1,
+    FARM_STATE.MOVE_TO_BLACKSMITH,
+    FARM_STATE.ENTER_BLACKSMITH,
+    FARM_STATE.REPAIR_ALL
+]
+
+SowThenRecallSequence := [
+    FARM_STATE.CHANGE_TOOLS,
+    FARM_STATE.SOW_FIELDS,
+    FARM_STATE.FARM_RECALL
+]
+
+TestSequence := [
+    FARM_STATE.TRAVEL_FARM_PLOT,
+    FARM_STATE.GET_IN_FARM_PLOT,
+    FARM_STATE.CHANGE_TOOLS,
+    FARM_STATE.SOW_FIELDS
+]
+
+FarmSequences := Map()
+FarmSequences["Default"] := DefaultFarmSequence
+FarmSequences["GinsengSave"] := GinsengSaveSequence
+FarmSequences["GinsengSowFirst"] := GinsengSaveSowFirstSequence
+FarmSequences["SowThenRecall"] := SowThenRecallSequence
+FarmSequences["Test"] := TestSequence
 
 FarmPositionsLtR := [directions.LeftDown, directions.Down, directions.RightDown]
 
@@ -54,42 +141,49 @@ Okay_Menu_Prompt.SetSearchCoords(CtPixel(23, "X"), CtPixel(63, "Y"), CtPixel(52,
 
 ; Farm Navigation to Farm Plots
 farmPlotIndex := 0
-farmPlots := []
 
+; Waypoints
 North_FarmWagon_WP1 := NodeInfo("North_FarmWagon_WP1",,, [90,95])
 North_FarmWagon_WP2 := NodeInfo("North_FarmWagon_WP2",,, [83,82])
-farmPlots.Push(NodeInfo("North_FarmWagon_Slot1",,, [75, 79],,,[North_FarmWagon_WP1, North_FarmWagon_WP2]))
-farmPlots.Push(NodeInfo("North_FarmWagon_Slot2",,, [81, 79],,,[North_FarmWagon_WP1, North_FarmWagon_WP2]))
-farmPlots.Push(NodeInfo("North_FarmWagon_Slot3",,, [83, 82],,,[North_FarmWagon_WP1, North_FarmWagon_WP2]))
-
 SW_BigFarm_WP1 := NodeInfo("SW_BigFarm_WP1",,, [110,125])
-farmPlots.Push(NodeInfo("SW_BigFarm_Slot1",,, [77, 113],,,[SW_BigFarm_WP1]))
-farmPlots.Push(NodeInfo("SW_BigFarm_Slot2",,, [71, 108],,,[SW_BigFarm_WP1]))
-farmPlots.Push(NodeInfo("SW_BigFarm_Slot3",,, [64, 105],,,[SW_BigFarm_WP1]))
-farmPlots.Push(NodeInfo("SW_BigFarm_Slot4",,, [60, 102],,,[SW_BigFarm_WP1]))
-farmPlots.Push(NodeInfo("SW_BigFarm_Slot5",,, [55, 98],,,[SW_BigFarm_WP1]))
-farmPlots.Push(NodeInfo("SW_BigFarm_Slot6",,, [54, 92],,,[SW_BigFarm_WP1]))
-farmPlots.Push(NodeInfo("SW_BigFarm_Slot7",,, [73, 93],,,[SW_BigFarm_WP1]))
-farmPlots.Push(NodeInfo("SW_BigFarm_Slot8",,, [81, 94],,,[SW_BigFarm_WP1]))
-farmPlots.Push(NodeInfo("SW_BigFarm_Slot9",,, [87, 97],,,[SW_BigFarm_WP1]))
-farmPlots.Push(NodeInfo("SW_BigFarm_Slot10",,, [93, 110],,,[SW_BigFarm_WP1]))
 
-;East_BigFarm_WP1 := NodeInfo("East_BigFarm_WP1",,, [110,125])
-farmPlots.Push(NodeInfo("East_BigFarm_Slot1",,, [157, 169]))
-farmPlots.Push(NodeInfo("East_BigFarm_Slot2",,, [159, 186])) ;good
-farmPlots.Push(NodeInfo("East_BigFarm_Slot3",,, [170, 180])) ;good
-farmPlots.Push(NodeInfo("East_BigFarm_Slot4",,, [178, 168])) ;good
-farmPlots.Push(NodeInfo("East_BigFarm_Slot5",,, [180, 154])) ;good
-farmPlots.Push(NodeInfo("East_BigFarm_Slot6",,, [198, 151])) ;good
-farmPlots.Push(NodeInfo("East_BigFarm_Slot7",,, [199, 141])) ;good
-farmPlots.Push(NodeInfo("East_BigFarm_Slot8",,, [187, 141])) ;good
+FarmPlotGroup1 := []
+FarmPlotGroup1.Push(NodeInfo("North_FarmWagon_Slot1",,, [75, 79],,,[North_FarmWagon_WP1, North_FarmWagon_WP2]))
+FarmPlotGroup1.Push(NodeInfo("North_FarmWagon_Slot3",,, [83, 82],,,[North_FarmWagon_WP1, North_FarmWagon_WP2]))
+FarmPlotGroup1.Push(NodeInfo("SW_BigFarm_Slot1",,, [77, 113],,,[SW_BigFarm_WP1]))
+FarmPlotGroup1.Push(NodeInfo("SW_BigFarm_Slot5",,, [55, 98],,,[SW_BigFarm_WP1]))
+FarmPlotGroup1.Push(NodeInfo("SW_BigFarm_Slot10",,, [93, 110],,,[SW_BigFarm_WP1]))
+FarmPlotGroup1.Push(NodeInfo("East_BigFarm_Slot7",,, [199, 141]))
+FarmPlotGroup1.Push(NodeInfo("East_BigFarm_Slot3",,, [170, 180]))
+FarmPlotGroup1.Push(NodeInfo("East_BigFarm_Slot4",,, [178, 168]))
+FarmPlotGroup1.Push(NodeInfo("East_BigFarm_Slot5",,, [180, 154]))
+FarmPlotGroup1.Push(NodeInfo("East_BigFarm_Slot1",,, [157, 169]))
+
+FarmPlotGroup2 := []
+FarmPlotGroup2.Push(NodeInfo("North_FarmWagon_Slot2",,, [81, 79],,,[North_FarmWagon_WP1, North_FarmWagon_WP2]))
+FarmPlotGroup2.Push(NodeInfo("SW_BigFarm_Slot2",,, [71, 108],,,[SW_BigFarm_WP1]))
+FarmPlotGroup2.Push(NodeInfo("SW_BigFarm_Slot3",,, [64, 105],,,[SW_BigFarm_WP1]))
+FarmPlotGroup2.Push(NodeInfo("SW_BigFarm_Slot7",,, [73, 93],,,[SW_BigFarm_WP1]))
+FarmPlotGroup2.Push(NodeInfo("East_BigFarm_Slot6",,, [198, 151]))
+FarmPlotGroup2.Push(NodeInfo("East_BigFarm_Slot8",,, [187, 141]))
+FarmPlotGroup2.Push(NodeInfo("SW_BigFarm_Slot4",,, [60, 102],,,[SW_BigFarm_WP1]))
+FarmPlotGroup2.Push(NodeInfo("SW_BigFarm_Slot6",,, [54, 92],,,[SW_BigFarm_WP1]))
+FarmPlotGroup2.Push(NodeInfo("SW_BigFarm_Slot8",,, [81, 94],,,[SW_BigFarm_WP1]))
+FarmPlotGroup2.Push(NodeInfo("SW_BigFarm_Slot9",,, [87, 97],,,[SW_BigFarm_WP1]))
+FarmPlotGroup2.Push(NodeInfo("East_BigFarm_Slot2",,, [159, 186]))
+
+FarmPlotGroups := Map()
+FarmPlotGroups["FarmPlotGroup1"] := FarmPlotGroup1
+FarmPlotGroups["FarmPlotGroup2"]  := FarmPlotGroup2
+
+farmPlots := []
 
 ; Farm Navigation to Shop
 ShopEntrance := NodeInfo("ShopEntrance",,, [93,178])
 ShopEntrance2 := NodeInfo("ShopEntrance2",,, [89,181])
 ShopEntrance3 := NodeInfo("ShopEntrance3",,, [91,180])
 ShopEntrance4 := NodeInfo("ShopEntrance4",,, [90,178])
-Shop_WP1 := NodeInfo("Shop_WP1",,, [130,172])
+Shop_WP1 := NodeInfo("Shop_WP1",,, [126,164])
 
 ; Recall Landing Spot
 RecallLandingSpot := NodeInfo("RecallLandingSpot",,,[125, 151])
@@ -117,25 +211,43 @@ ItemsForSaleMenu := NodeInfo("ItemsForSale", "images\node_images\ItemsForSale.pn
 Blacksmith := NodeInfo("Blacksmith", "images\node_images\Blacksmith.png",,,[15,81])
 RepairAllButton := NodeInfo("RepairAllButton", "images\node_images\Repair_All.png",,,[22,7])
 RepairButton := NodeInfo("RepairButton", "images\node_images\Repair.png",,,[12,7])
+Already_Repaired := NodeInfo("Already_Repaired", "images\node_images\Already_Repaired.png")
+
+; Warehouse Nav
+WHEntrance := NodeInfo("WHEntrance",,, [72,197])
+WH_WP1 := NodeInfo("WH_WP1",,, [75,200])
+
+; Warehouse Interior
+William := NodeInfo("William", "images\node_images\William.png",,,[14,34])
+WH_Exit := NodeInfo("WH_Exit", "images\node_images\WH_Exit.png",,,[14,34])
+
+; Mailbox
+Mailbox := NodeInfo("Mailbox", "images\node_images\Mailbox.png",,,[8,4])
+Send_Mail := NodeInfo("Send_Mail", "images\node_images\Send_Mail.png",,,[50,2])
+Send_Btn := NodeInfo("Send_Btn", "images\node_images\Send.png",,,[8,4])
+Recipient := NodeInfo("Recipient", "images\node_images\Recipient.png",,,[8,4])
+Title := NodeInfo("Title", "images\node_images\Title.png",,,[8,4])
+Mail_Box_Menu := NodeInfo("Mail_Box_Menu", "images\node_images\Mail_Box_Menu.png",,,[0,0])
+No_Items_Attached := NodeInfo("No_Items_Attached", "images\node_images\Attach_Items_0.png",,,[0,0])
 
 ; Seeds 
 Seed_Img := "images\node_images\Seed_Img.png"
 seedIndex := 0
 seedList := []
-seedList.Push(NodeInfo("Seed_Watermelon", "images\node_images\Seed_Watermelon.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_Pumpkin", "images\node_images\Seed_Pumpkin.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_Garlic", "images\node_images\Seed_Garlic.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_Barley", "images\node_images\Seed_Barley.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_Carrot", "images\node_images\Seed_Carrot.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_Radish", "images\node_images\Seed_Radish.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_Corn", "images\node_images\Seed_Corn.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_Chinese", "images\node_images\Seed_Chinese.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_Melon", "images\node_images\Seed_Melon.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_Tomato", "images\node_images\Seed_Tomato.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_Grapes", "images\node_images\Seed_Grapes.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_BlueGrapes", "images\node_images\Seed_BlueGrapes.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_Mushroom", "images\node_images\Seed_Mushroom.png",,,[0,7], 4))
-seedList.Push(NodeInfo("Seed_Ginseng", "images\node_images\Seed_Ginseng.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Watermelon", "images\node_images\Seed_Watermelon.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Pumpkin", "images\node_images\Seed_Pumpkin.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Garlic", "images\node_images\Seed_Garlic.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Barley", "images\node_images\Seed_Barley.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Carrot", "images\node_images\Seed_Carrot.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Radish", "images\node_images\Seed_Radish.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Corn", "images\node_images\Seed_Corn.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Chinese", "images\node_images\Seed_Chinese.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Melon", "images\node_images\Seed_Melon.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Tomato", "images\node_images\Seed_Tomato.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Grapes", "images\node_images\Seed_Grapes.png",,,[0,7], 4))
+seedList.Push(NodeInfo("BlueGrapes", "images\node_images\Seed_BlueGrapes.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Mushroom", "images\node_images\Seed_Mushroom.png",,,[0,7], 4))
+seedList.Push(NodeInfo("Ginseng", "images\node_images\Seed_Ginseng.png",,,[0,7], 7))
 
 ; Pickup
 PickupHandImg := "images\node_images\Pickup_Hand.png"
@@ -151,30 +263,29 @@ StartFarming() {
     farmGui.BackColor := "9b908d" ; Makes the GUI transparent
     WinSetAlwaysOnTop(1, farmGui.Hwnd)    
 
-    ; Create an array to hold seed names
-    seedNames := []
-    plotNames := []
-
-    ; Loop through the seedList to extract seed names
-    for index, seed in seedList {
-        ; Extract the seed name by splitting the string
-        seedName := StrSplit(seed.GetNodeTitle(), "_")[2] ; Gets the part after "Seed_"
-        seedNames.Push(seedName)
-    }
-
-    for index, plot in farmPlots {
-        plotNames.Push(plot.GetNodeTitle())
-    }
-
     ; Add the UpDown control and other components to the GUI
-    farmGui.Add("Text",, "Select seed to farm:")
-    farmGui.Add("ListBox", "vSeedChoice Choose1 r" 5, seedNames)
-    
-    farmGui.Add("Text",, "Select farm plot:")
-    farmGui.Add("ListBox", "vPlotChoice Choose1 r" 5, plotNames)
+    farmGui.Add("Text",, "Select Seed To Farm:")
+        seedNames := []
+        for index, seed in seedList
+            seedNames.Push(seed.GetNodeTitle())
 
-    farmGui.Add("Text",, "Select state:")
-    farmGui.Add("ListBox", "vFarmingState Choose1 r" 5, farmingStates)
+        farmGui.Add("ListBox", "vSeedChoice Choose1 r" 5, seedNames)
+
+    farmGui.Add("Text",, "Select Plot Group:")
+        plotGroupNames := []
+        for name, _ in FarmPlotGroups
+            plotGroupNames.Push(name)
+
+        farmGui.Add("ListBox", "vPlotChoice Choose1 r" 5, plotGroupNames)
+
+    farmGui.Add("Text",, "Select sequence:")
+        SequenceNames := []
+        for name, _ in FarmSequences
+            SequenceNames.Push(name)
+
+        farmGui.Add("ListBox", "vFarmingSequence Choose1 r" 5, SequenceNames)
+    
+    farmGui.Submit()
 
     OKButton := farmGui.Add("Button", "Default vOKButton", "OK")
     OKButton.OnEvent("Click", (*) => FarmingButtonSubmit(farmGui))
@@ -184,12 +295,20 @@ StartFarming() {
 }
 
 FarmingButtonSubmit(farmGui) {
-    Global seedIndex, farmPlotIndex, FarmingIndicator, FarmingState
+    global seedIndex, farmPlotIndex, farmPlots, FarmingIndicator
 
-    farmPlotIndex := farmGui["PlotChoice"].Value
-    seedIndex := farmGui["SeedChoice"].Value ; Retrieve the selected seed name from the ListBox
-    FarmingState := farmingStates[farmGui["FarmingState"].Value]
-    farmGui.Destroy()
+    results := farmGui.Submit()
+
+    for i, node in seedList {
+        if (node.GetNodeTitle() == results.SeedChoice) {
+            seedIndex := i
+            break
+        }
+    }
+
+    farmPlots := FarmPlotGroups[results.PlotChoice]
+
+    selectedSequence := FarmSequences[results.FarmingSequence]
 
     if (FarmingIndicator == "") {
         FarmingIndicator := gGUI.Add("Text", "x" CtPixel(0, "X") " y" CtPixel(97, "Y") " cWhite", "Farming " seedList[seedIndex].GetNodeTitle())
@@ -199,120 +318,121 @@ FarmingButtonSubmit(farmGui) {
         FarmingIndicator.Visible := true
     }
 
-    FarmingCycle()
+    FarmingCycle(selectedSequence)
+    farmGui.Destroy()
 }
 
-FarmingCycle() {
-    global farmingActive, FarmingState, farmPlotIndex
+StateHandler(state) {
+    if (!farmingActive) {
+        return
+    }
+
+    switch state {
+        case FARM_STATE.FARM_RECALL:
+            return FarmingRecall()
+
+        case FARM_STATE.TRAVEL_FARM_PLOT:
+            farmPlots[farmPlotIndex].MoveToLocation()
+            return true
+
+        case FARM_STATE.GET_IN_FARM_PLOT:
+            return GetInFarmSpot()
+
+        case FARM_STATE.CHANGE_TOOLS:
+            return CycleTool()
+
+        case FARM_STATE.SOW_FIELDS:
+            SowFields()
+            return true
+
+        case FARM_STATE.MOVE_TO_SHOP_WP1:
+            Shop_WP1.MoveToLocation()
+            return true
+
+        case FARM_STATE.MOVE_TO_SHOP:
+            ShopEntrance.MoveToLocation()
+            return true
+
+        case FARM_STATE.ENTER_SHOP:
+            if (EnterShop()) {
+                return true
+            }
+
+        case FARM_STATE.REST_AND_SHOP:
+            return RestAndShop()
+
+        case FARM_STATE.EXIT_SHOP:
+            if (ExitShop()) {
+                return true
+            }
+
+        case FARM_STATE.MOVE_TO_BLACKSMITH_WP1:
+            BM_WP1.MoveToLocation()
+            return true
+
+        case FARM_STATE.MOVE_TO_BLACKSMITH:
+            BlackSmithEntrance.MoveToLocation()
+            return true
+
+        case FARM_STATE.ENTER_BLACKSMITH:
+            if (EnterBlackSmith()) {
+                return true
+            }
+
+        case FARM_STATE.REPAIR_ALL:
+            return RepairAll()
+
+        case FARM_STATE.MOVE_TO_WAREHOUSE:
+            return WHEntrance.MoveToLocation()
+
+        case FARM_STATE.ENTER_WAREHOUSE:
+            return EnterWH()
+
+        case FARM_STATE.MAIL_PRODUCE:
+            return MailProduce()
+
+        case FARM_STATE.EXIT_WAREHOUSE:
+            return ExitWareHouse()
+
+        case FARM_STATE.EXIT_WAREHOUSE_WP1:
+            WH_WP1.MoveToLocation()
+            return true
+    }
+}
+
+FarmingCycle(sequence) {
+    global farmingActive, farmPlotIndex
+
     farmingActive := true
+    currentStateIndex := 1
+    currentPlotIndex := 1
 
-    if (!WinActive(WinTitle)) {
-        return
-    }
-
-    if (farmPlotIndex == 0 || seedIndex == 0) {
-        return
-    }
-
-    BlockInput "MouseMove"
     EnableShiftPickup()
-    Sleep 200
+    Sleep 10
 
     Loop {
         if stopFlag {
-            StopFarming()
-            return
+            break
         }
 
-        if (Okay_Menu_Prompt.IsOnScreen()) {
-            Okay_Menu_Prompt.Click() ; Click okay if a menu has popped up on the screen (like crusade)
+        currentState := sequence[currentStateIndex]
+
+        ; Randomzie plots
+        if (currentState = FARM_STATE.TRAVEL_FARM_PLOT) {
+            farmPlotIndex := Random(1, farmPlots.Length)
         }
 
-        Sleep 200
+        success := StateHandler(currentState)
 
-        switch FarmingState {
-            case farmingStates[1]: ; "recall_start"
-                if (!FarmingRecall()) {
-                    StopFarming()
-                }
-                FarmingState := farmingStates[2]
+        if !success
+            break
 
-            case farmingStates[2]: ; "travel_farm_plot"
-                farmPlots[farmPlotIndex].MoveToLocation()
-                FarmingState := farmingStates[3]
-
-            case farmingStates[3]: ; "get_in_farm_plot"
-                if !GetInFarmSpot() {
-                    StopFarming()
-                    return
-                }
-                FarmingState := farmingStates[4]
-            
-            case farmingStates[4]: ; "change_tools"
-                CycleTool()
-                FarmingState := farmingStates[5]
-
-            case farmingStates[5]: ; "sow_fields"
-                SowFields()
-                FarmingState := farmingStates[6]
-
-            case farmingStates[6]: ; "recall_for_shop"
-                if (!FarmingRecall()) {
-                    StopFarming()
-                }
-                FarmingState := farmingStates[7]
-            
-            case farmingStates[7]: ; "move_to_shop_wp1"
-                Shop_WP1.MoveToLocation()
-                FarmingState := farmingStates[8]
-
-            case farmingStates[8]: ; "move_to_shop"
-                ShopEntrance.MoveToLocation()
-                FarmingState := farmingStates[9]
-
-            case farmingStates[9]: ; "enter_shop"
-                if (!EnterShop()) {
-                    StopFarming()
-                }
-                FarmingState := farmingStates[10]
-
-            case farmingStates[10]: ; "rest_and_shop"
-                RestAndShop()
-                FarmingState := farmingStates[11]
-
-            case farmingStates[11]: ; "exit_shop"
-                if (!ExitShop()) {
-                    StopFarming()
-                }
-                FarmingState := farmingStates[12]
-
-            case farmingStates[12]: ; "move_to_blacksmith_wp1"
-                BM_WP1.MoveToLocation()
-                FarmingState := farmingStates[13]
-
-            case farmingStates[13]: ; "move_to_blacksmith"
-                BlackSmithEntrance.MoveToLocation()
-                FarmingState := farmingStates[14]
-
-            case farmingStates[14]: ; "enter_blacksmith"
-                if (!EnterBlackSmith()) {
-                    StopFarming()
-                }
-                FarmingState := farmingStates[15]
-
-            case farmingStates[15]: ; "repair_all"
-                RepairAll()
-                farmPlotIndex := Random(1, farmPlots.Length) ; randomize the plot we goto
-                FarmingState := farmingStates[1]
-        }
+        currentStateIndex++
+        if (currentStateIndex > sequence.Length)
+            currentStateIndex := 1
     }
 
-    Sleep 500
-
-    if (farmingActive) {
-        StopFarming()
-        Sleep 500
-    }
+    StopFarming()
 }
 
 StopFarming() {
@@ -324,7 +444,76 @@ StopFarming() {
     FarmingIndicator.Visible := false
     RemoveHolds()
     ReturnInputs()
-    ExitApp
+}
+
+MailProduce() {
+    Loop 2 {
+        if (!farmingActive) {
+            return false
+        }
+
+        if (William.IsOnScreen()) {
+            William.Click()
+        }
+        Mailbox.Click()
+        MouseMove(CenterX, CenterY, 0)
+        Send_Mail.Click()
+        MouseMove(CenterX, CenterY, 0)
+        Recipient.Click()
+        MouseMove(CenterX, CenterY, 0)
+        SendText("Rhunlen") 
+        MouseMove(CenterX, CenterY, 0)
+        Title.Click()
+        MouseMove(CenterX, CenterY, 0)
+        SendText(seedList[seedIndex].GetNodeTitle()) 
+        MouseMove(CenterX, CenterY, 0)
+        OpenBag()
+        Sleep 100
+        MouseClick("L", DefaultItemLandingPos[1], DefaultItemLandingPos[2], 21, 0) ;21 because 1 click then 20 'double-clicks'
+        OpenBag()
+        if (!No_Items_Attached.IsOnScreen()) {
+            Send_Btn.Click() ; Only send if we actualy have an attachment!
+        }
+        Sleep 100
+        Mail_Box_Menu.Click("R", 1, false)
+        Sleep 100
+    }
+
+    ; extra attempt to close the screen
+    MouseMove(CenterX, CenterY, 0)
+    if Mail_Box_Menu.IsOnScreen() {
+        Mail_Box_Menu.Click("R", 1, false)
+    }
+
+    return true
+}
+
+ExitWareHouse() {
+    Loop 10 {
+        WH_Exit.Click()
+        Sleep 500
+        MouseMove(CenterX, CenterY, 0)
+        if (WHEntrance.IsPlayerNearby()) {
+            if (WH_WP1.MoveToLocation()) {
+                return true
+            }            
+        }
+        Sleep 100
+    }
+    return false
+}
+
+EnterWH() {
+    Loop 5 {
+        WHEntrance.Click()
+        Sleep 500
+        MouseMove(CenterX, CenterY, 0)
+        if (William.IsOnScreen()) {
+            return true
+        }
+        Sleep 100
+    }
+    return false
 }
 
 EnterShop() {
@@ -378,17 +567,20 @@ RepairAll() {
         Sleep 200
         if (RepairAllButton.IsOnScreen()) {
             RepairAllButton.Click()
+
+            if (Already_Repaired.IsOnScreen()) {
+                return true
+            }
         }
         Sleep 200
-        MouseMove(0, 0, 0)
-        Sleep 200
+        MouseMove(CenterX, CenterY, 0)
         if (RepairButton.IsOnScreen()) {
             RepairButton.Click()
-            return
+            return true
         }
         Sleep 500
     }
-    StopFarming() ; We failed to repair
+    return false
 }
 
 RestAndShop() {
@@ -422,12 +614,12 @@ RestAndShop() {
             if (InventoryMenu.IsOnScreen()) {
                 OpenBag() ; closes the opened inventory menu
             }
-            return
+            return true
         }
         Sleep 1000
     }
 
-    StopFarming() ; We never made it into shop
+    return false
 }
 
 MoveSeedsToPosition() {
@@ -569,7 +761,7 @@ FarmingRecall() {
 
 CycleTool() {
     if (!farmingActive) {
-        return
+        return false
     }
 
     Static Index := 1
@@ -582,6 +774,7 @@ CycleTool() {
     BlockInput "MouseMove" ; Calling the equip item function will stop blocking mouse input, so we need to block it again here.
     Index++
     Sleep 250
+    return true
 }
 
 GetInFarmSpot() {
@@ -589,7 +782,7 @@ GetInFarmSpot() {
         return false
     }  
 
-    Loop 7 {
+    Loop 3 {
         if (farmPlots[farmPlotIndex].IsPlayerOnWorldLocation()) {
             return true
         }
@@ -600,6 +793,22 @@ GetInFarmSpot() {
         MouseClick("R") ; stop moving
         Sleep 10
     } 
+
+    ; try one more thing (move up and to the left pretty far)
+    Loop 2 {
+        DesiredPosition := [playerGameCoords[1] - 3, playerGameCoords[2] - 2]
+        MoveToWorldCoord(DesiredPosition)
+        Sleep 2000
+        farmPlots[farmPlotIndex].Click()
+        MouseMove(CenterX, CenterY, 0)
+        Sleep 2000
+        MouseClick("R") ; stop moving
+        Sleep 10
+
+        if (farmPlots[farmPlotIndex].IsPlayerOnWorldLocation()) {
+            return true
+        }
+    }
 
     StopFarming()
     return false
@@ -614,7 +823,6 @@ ClearEnemies() {
 
     EnemyCoords := FindAdjacentEnemy()
     if (EnemyCoords) {
-        ;equip weapon
         Send("{RButton down}")
         Loop {
             i++
@@ -630,7 +838,6 @@ ClearEnemies() {
         Send("{Alt up}")
         Send("{RButton up}")
         MouseMove(CenterX, CenterY, 0)
-        ;equip hoe
         Sleep 1000
     }
 }
@@ -713,7 +920,6 @@ IsBagFull(*) {
 	return false
 }
 
-
 PlantCropInSquare(square) {
     OpenBag()
     Sleep 250
@@ -734,7 +940,7 @@ PlantInitialCrop() {
     }
 }
 
-HarvestSwingDown(direction := directions.Down) {
+HarvestSwingDown(direction := directions.Down, bDesiredClear := false) {
     static NextToolCycleTime := 0
 
     if (NextToolCycleTime = 0)
@@ -744,7 +950,8 @@ HarvestSwingDown(direction := directions.Down) {
         MouseMove(direction[1], direction[2], 0)
         Send("{RButton down}")
 
-        RandomLoopTime := A_TickCount + Random(5000, 10000)
+        extraTime := bDesiredClear ? 10000 : 0
+        RandomLoopTime := A_TickCount + Random(5000, 10000) + extraTime
 
         Loop {
             Sleep 500
@@ -760,50 +967,75 @@ HarvestSwingDown(direction := directions.Down) {
     }
 }
 
-CycleOverCrops(bShouldPlant := false) {
-    static bBagIsFull := false
+IsCropMissing() {
+    for idx, square in FarmPositionsLtR {
+        i := idx - 2 ; 1→-1, 2→0, 3→1
 
-    bMissingACrop := false
+        if (!DoesCropExist(square)) {
+            return true
+        }
+    }
 
+    return false
+}
+
+ProduceNeedsPicked() {
+    for idx, square in FarmPositionsLtR {
+        i := idx - 2 ; 1→-1, 2→0, 3→1
+
+        if (DoesProduceExist(square)) {
+            return true
+        }
+    }
+
+    return false
+}
+
+PickUpProduce() {
+    for idx, square in FarmPositionsLtR {
+        i := idx - 2   ; 1→-1, 2→0, 3→1
+
+        bBagIsFull := IsBagFull()
+
+        if (!bBagIsFull && DoesProduceExist(square)) {
+            curPos := farmPlots[farmPlotIndex].WorldCoordinates
+            DesiredPosition := [curPos[1] + i, curPos[2] + 1]
+            MoveToWorldCoord(DesiredPosition)
+            Sleep 250
+            PickUp()
+            MoveToWorldCoord(farmPlots[farmPlotIndex].WorldCoordinates)
+            Sleep 500
+            GetInFarmSpot()
+            Sleep 100
+        }
+    }
+}
+
+PlantCropSquares() {
     for idx, square in FarmPositionsLtR {
         i := idx - 2   ; 1→-1, 2→0, 3→1
 
         if (!DoesCropExist(square)) {
-            bMissingACrop := true
-
-            PickUp()
-            bBagIsFull := IsBagFull()
-
-            if (!bBagIsFull && DoesProduceExist(square)) {
-                Sleep 100
-                curPos := farmPlots[farmPlotIndex].WorldCoordinates
-                DesiredPosition := [curPos[1] + i, curPos[2] + 1]
-                MoveToWorldCoord(DesiredPosition)
-                Sleep 500
-                PickUp()
-                MoveToWorldCoord(farmPlots[farmPlotIndex].WorldCoordinates)
-                Sleep 500
-            }
-            else if (bShouldPlant) {
-                PlantCropInSquare(square)
-                Sleep 100
-                if !DoesCropExist(square) {
-                    ClearEnemies()
-                    if !GetInFarmSpot() {
-                        StopFarming()
-                        Send("{RButton up}")
-                        return
-                    }
-                }
-            }
+            PlantCropInSquare(square)
         }
     }
+}
 
-    return bMissingACrop
+ClearSideCrops() {
+    if (DoesCropExist(directions.Left)) {
+        HarvestSwingDown(directions.Left, true)
+    }
+
+    if (DoesCropExist(directions.Right)) {
+        HarvestSwingDown(directions.Right, true)
+    }
 }
 
 HarvestCrops() {
     global bNeedSeeds
+
+    NextClearEnemiesTime := A_TickCount
+    NextPickUpTime := A_TickCount
 
     Loop {
         if (!farmingActive) {
@@ -815,16 +1047,40 @@ HarvestCrops() {
         }
         
         if (stopFlag) {
+            StopFarming()
             Break
         }
 
         Send("{RButton up}")
-        ClearEnemies()
 
-        bCropMissing := CycleOverCrops(true)
+        if (NextClearEnemiesTime <= A_TickCount) {
+            ClearEnemies()
+            NextClearEnemiesTime := A_TickCount + 25000 ;25 secs
+        }
 
-        if (!bCropMissing) {
+        if (NextPickUpTime <= A_TickCount) {
+            PickUp()
+            NextPickUpTime := A_TickCount + 30000
+        }
+        
+        ; If no crops are missing, lets harvest middle!
+        if (!IsCropMissing()) { 
             HarvestSwingDown()
+        }       
+        else {
+            if (ProduceNeedsPicked()) {
+                PickUpProduce()
+            }
+            else {
+                PlantCropSquares()
+
+                ; If we have a crop missing, we failed to plant for some reason (clear enemies) and check for anti-bot
+                Sleep 100
+                if (IsCropMissing()) {
+                    ClearSideCrops() ; Clear out side crops (this should not be needed, but is useful in case someone is messing with us or we are for some reason off position
+                    ClearEnemies()
+                }
+            }
         }
 
         if (DoesSummonExist()) { ;Some assholes summon creatures to stop the bot, lets detect if this has occurred and change course
@@ -834,9 +1090,8 @@ HarvestCrops() {
         }
     } Until (bNeedSeeds)
 
-    HarvestSwingDown(directions.RightDown)
-    HarvestSwingDown(directions.LeftDown)
-    CycleOverCrops(false)
+    ;HarvestSwingDown(directions.RightDown)
+    ;HarvestSwingDown(directions.LeftDown)
 
     Send("{RButton up}")
 }
