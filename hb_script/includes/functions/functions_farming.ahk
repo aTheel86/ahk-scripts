@@ -7,7 +7,26 @@ staff in 8?
 Seeds in slot 12
 
 inventory must be in default position (unlock it restart game), lock it
+
+Things To Do:
+
+MAJOR:
+can get into a loop if bag is full (was trying to pickup produce over and over)
+
+Make a clean up function to pickup all produce and sow all the crops, before ending/recalling sowFields()
+add check for summon creatures
+add check for players
+add random messages
+add check for "hello" "are you there" (maybe just check for "h" and "u")
+
+
+test tampering
+improve shop entrance logic
+improve plot locations
+
 */
+
+
 
 ; Inventory position helper
 ; 14 13 12 11 10 9  8
@@ -42,6 +61,8 @@ class FARM_STATE {
     static MAIL_PRODUCE           := "MAIL_PRODUCE"
     static EXIT_WAREHOUSE         := "EXIT_WAREHOUSE"
     static EXIT_WAREHOUSE_WP1     := "EXIT_WAREHOUSE_WP1"
+    static SET_FARM_PLOT          := "SET_FARM_PLOT"
+    static END_FARMING            := "END_FARMING"
 }
 
 DefaultFarmSequence := [
@@ -107,9 +128,11 @@ GinsengSaveSowFirstSequence := [
 ]
 
 SowThenRecallSequence := [
+    FARM_STATE.SET_FARM_PLOT,
     FARM_STATE.CHANGE_TOOLS,
     FARM_STATE.SOW_FIELDS,
-    FARM_STATE.FARM_RECALL
+    FARM_STATE.FARM_RECALL,
+    FARM_STATE.END_FARMING
 ]
 
 TestSequence := [
@@ -252,7 +275,8 @@ seedList.Push(NodeInfo("Ginseng", "images\node_images\Seed_Ginseng.png",,,[0,7],
 ; Pickup
 PickupHandImg := "images\node_images\Pickup_Hand.png"
 CropBarImg := "images\node_images\Crop_bar.png"
-BagFullImg := "images\node_images\bag_full.png"
+;BagFullImg := "images\node_images\bag_full.png"
+BagFullImg := "images\node_images\BagFull.png"
 
 Test() {
     RepairAll()
@@ -397,6 +421,13 @@ StateHandler(state) {
         case FARM_STATE.EXIT_WAREHOUSE_WP1:
             WH_WP1.MoveToLocation()
             return true
+
+        case FARM_STATE.SET_FARM_PLOT:
+            farmPlotIndex := farmPlots.Push(NodeInfo("Current_Pos",,, [playerGameCoords[1], playerGameCoords[2]]))
+            return true
+
+        case FARM_STATE.END_FARMING:
+            return false
     }
 }
 
@@ -909,14 +940,13 @@ DoesCropExist(square) {
 }
 
 IsBagFull(*) {
-    X1 := 16
-    X2 := 110
-    Y1 := 528
-    Y2 := 544
-
-    if (ImageSearch(&Px, &Py, X1, Y1, X2, Y2, "*TransBlack " BagFullImg)) {
+    OpenBag()
+    Sleep 10
+    if (ImageSearch(&Px, &Py, InventoryAreaBox[1], InventoryAreaBox[2], InventoryAreaBox[3], InventoryAreaBox[4], "*TransBlack " BagFullImg)) {
+        OpenBag() ; close
         return true
     }
+    OpenBag() ; close
 	return false
 }
 
@@ -995,9 +1025,7 @@ PickUpProduce() {
     for idx, square in FarmPositionsLtR {
         i := idx - 2   ; 1→-1, 2→0, 3→1
 
-        bBagIsFull := IsBagFull()
-
-        if (!bBagIsFull && DoesProduceExist(square)) {
+        if (DoesProduceExist(square)) {
             curPos := farmPlots[farmPlotIndex].WorldCoordinates
             DesiredPosition := [curPos[1] + i, curPos[2] + 1]
             MoveToWorldCoord(DesiredPosition)
@@ -1060,6 +1088,7 @@ HarvestCrops() {
 
         if (NextPickUpTime <= A_TickCount) {
             PickUp()
+            
             NextPickUpTime := A_TickCount + 30000
         }
         
@@ -1068,7 +1097,7 @@ HarvestCrops() {
             HarvestSwingDown()
         }       
         else {
-            if (ProduceNeedsPicked()) {
+            if (!IsBagFull() && ProduceNeedsPicked()) {
                 PickUpProduce()
             }
             else {
