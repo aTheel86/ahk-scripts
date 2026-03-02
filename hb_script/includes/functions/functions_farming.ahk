@@ -331,6 +331,7 @@ FarmingButtonSubmit(farmGui) {
     }
 
     farmPlots := FarmPlotGroups[results.PlotChoice]
+    farmPlotIndex := Random(1, farmPlots.Length)
 
     selectedSequence := FarmSequences[results.FarmingSequence]
 
@@ -423,6 +424,7 @@ StateHandler(state) {
             return true
 
         case FARM_STATE.SET_FARM_PLOT:
+            UpdatePlayerCoords()
             farmPlotIndex := farmPlots.Push(NodeInfo("Current_Pos",,, [playerGameCoords[1], playerGameCoords[2]]))
             return true
 
