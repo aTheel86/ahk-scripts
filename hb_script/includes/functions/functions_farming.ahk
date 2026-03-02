@@ -40,6 +40,7 @@ global FarmedSeed := ""
 global SeedInvSlot := 12
 global sellSpot := [CtPixel(33.3, "X"),CtPixel(33.3, "Y")]
 global FarmingIndicator := ""
+global farmPlotIndex := 0
 
 class FARM_STATE {
     static FARM_RECALL            := "FARM_RECALL"
@@ -161,9 +162,6 @@ Okay_Menu_Prompt.SetSearchCoords(CtPixel(23, "X"), CtPixel(63, "Y"), CtPixel(52,
 
 ; Nodes for farming
 ;NodeInfo(1:NodeTitle, 2:Imagepath, 3:AltImagepath, 4:WorldCoordinates, 5:ClickOffset; 6:Value, 7:ConnectedNodes)
-
-; Farm Navigation to Farm Plots
-farmPlotIndex := 0
 
 ; Waypoints
 North_FarmWagon_WP1 := NodeInfo("North_FarmWagon_WP1",,, [90,95])
@@ -348,6 +346,8 @@ FarmingButtonSubmit(farmGui) {
 }
 
 StateHandler(state) {
+    global farmPlotIndex
+
     if (!farmingActive) {
         return
     }
