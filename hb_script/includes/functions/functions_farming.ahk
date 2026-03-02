@@ -940,14 +940,17 @@ DoesCropExist(square) {
 }
 
 IsBagFull(*) {
+    bIsFull := false
+
     OpenBag()
-    Sleep 10
+    Sleep 100
     if (ImageSearch(&Px, &Py, InventoryAreaBox[1], InventoryAreaBox[2], InventoryAreaBox[3], InventoryAreaBox[4], "*TransBlack " BagFullImg)) {
-        OpenBag() ; close
-        return true
+        bIsFull := true
     }
     OpenBag() ; close
-	return false
+    Sleep 250
+
+	return bIsFull
 }
 
 PlantCropInSquare(square) {
