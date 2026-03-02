@@ -159,7 +159,6 @@ OptionsMenu(optionNames, optionFunctionNames) {
 ; ══════════════════════════════════════════════════════  Hotkeys and Game Actions ══════════════════════════════════════════════════════ ;
 
 ToggleMap(*) => Send("^m")
-OpenBag(*) => Send("{f6}")
 OpenCharacter(*) => Send("{f5}")
 ToggleRunWalk(*) => Send("^r")
 OpenGameSettings(*) => Send("{F12}")

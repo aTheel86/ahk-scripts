@@ -501,7 +501,7 @@ MailProduce() {
         OpenBag()
         Sleep 100
         MouseClick("L", DefaultItemLandingPos[1], DefaultItemLandingPos[2], 21, 0) ;21 because 1 click then 20 'double-clicks'
-        OpenBag()
+        CloseBag()
         if (!No_Items_Attached.IsOnScreen()) {
             Send_Btn.Click() ; Only send if we actualy have an attachment!
         }
@@ -642,9 +642,7 @@ RestAndShop() {
             OpenBag()
             Sleep 100
             MoveSeedsToPosition()
-            if (InventoryMenu.IsOnScreen()) {
-                OpenBag() ; closes the opened inventory menu
-            }
+            CloseBag()
             return true
         }
         Sleep 1000
@@ -742,9 +740,7 @@ SellItemsOnDefaultSlot() {
         Sleep 100
     }
 
-    if (InventoryMenu.IsOnScreen()) {
-        OpenBag() ; closes the opened inventory menu
-    }
+    CloseBag()
 
     return !bHitMaximumItems
 }
@@ -947,7 +943,7 @@ IsBagFull(*) {
     if (ImageSearch(&Px, &Py, InventoryAreaBox[1], InventoryAreaBox[2], InventoryAreaBox[3], InventoryAreaBox[4], "*TransBlack " BagFullImg)) {
         bIsFull := true
     }
-    OpenBag() ; close
+    CloseBag()
     Sleep 250
 
 	return bIsFull
@@ -961,7 +957,7 @@ PlantCropInSquare(square) {
         Sleep Random(100,500)
         MouseClick("L", square[1], square[2], 1, 0)
     }
-    OpenBag() ;Close 
+    CloseBag()
     Sleep 50
 }
 
@@ -1101,7 +1097,9 @@ HarvestCrops() {
         }       
         else {
             if (!IsBagFull() && ProduceNeedsPicked()) {
+                Sleep 100
                 PickUpProduce()
+                Sleep 100
             }
             else {
                 PlantCropSquares()

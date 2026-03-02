@@ -44,6 +44,28 @@ ArmorSets["MP"] := __ReadArmorSetFromIni("MP")
 ArmorSets["DR"] := __ReadArmorSetFromIni("DR")
 ArmorSets["WAND"] := __ReadArmorSetFromIni("WAND")
 
+; ══════════════════════════════════════════════════════  Simple Bag Functions ══════════════════════════════════════════════════════ ;
+
+BagOpenImg := "images\node_images\BagCorner.png"
+
+OpenBag(*) {
+	if (ImageSearch(&X, &Y, 497, 292, 501, 296, "*TransBlack " BagOpenImg)) {
+		return false
+	}
+
+ 	Send("{f6}")
+	return true
+}
+
+CloseBag(*) {
+	if (ImageSearch(&X, &Y, 497, 292, 501, 296, "*TransBlack " BagOpenImg)) {
+		Send("{f6}")
+		return true
+	}
+
+	return false
+}
+
 ; Combat inputs (Ctrl/Alt/Shift/LButton) can be held while a swap occurs.
 ; If we synthesize Ctrl Down/Up while the user is also holding keys, Windows can
 ; end up in a "stuck modifier" state. The fix is:
