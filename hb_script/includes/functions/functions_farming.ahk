@@ -11,7 +11,7 @@ inventory must be in default position (unlock it restart game), lock it
 Things To Do:
 
 MAJOR:
-can get into a loop if bag is full (was trying to pickup produce over and over)
+sometimes the mailbox menu doesn't close and the script ends because of it
 
 Make a clean up function to pickup all produce and sow all the crops, before ending/recalling sowFields()
 add check for summon creatures
@@ -517,6 +517,9 @@ MailProduce() {
     if Mail_Box_Menu.IsOnScreen() {
         Mail_Box_Menu.Click("R", 1, false)
     }
+
+    ; try just force right clicking in the screen regon
+    MouseClick("R", 325, 300, 1, 0)
 
     return true
 }

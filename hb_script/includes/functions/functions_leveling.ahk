@@ -618,7 +618,7 @@ SlimeLeveling(myGUI, Duration)
 				}
 				else if (NextRandomBehaviorTime <= A_TickCount) {
 					Behavior := Random(1,6)
-					RandomOffset := Random(3,8)
+					RandomOffset := Random(2,5)
 						
 					switch Behavior {
 						case 1:
