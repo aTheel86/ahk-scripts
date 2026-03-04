@@ -611,14 +611,15 @@ SlimeLeveling(myGUI, Duration)
 					Continue
 				}
 				else if (WanderState) {
-					RandomCoords[1] := playerGameCoords[1] + Random(-4, 4)
-					RandomCoords[2] := playerGameCoords[2] + Random(-4, 4)
+					RandomCoords[1] := playerGameCoords[1] + Random(-3, 3)
+					RandomCoords[2] := playerGameCoords[2] + Random(-3, 3)
 					MoveToWorldCoord(RandomCoords)
 					Sleep Random(10,1500)
+					Continue
 				}
 				else if (NextRandomBehaviorTime <= A_TickCount) {
 					Behavior := Random(1,6)
-					RandomOffset := Random(2,5)
+					RandomOffset := Random(2,4)
 						
 					switch Behavior {
 						case 1:
@@ -644,7 +645,7 @@ SlimeLeveling(myGUI, Duration)
 							StartingPointNode.MoveToLocation()
 					}
 							
-					NextRandomBehaviorTime := A_TickCount + Random(8000,15000)
+					NextRandomBehaviorTime := A_TickCount + Random(5000,12000)
 				}
 
 				if (A_TickCount > StopTime) {
