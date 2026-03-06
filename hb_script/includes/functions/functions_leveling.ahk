@@ -593,7 +593,7 @@ SlimeLeveling(myGUI, Duration)
 				UpdatePlayerCoords()
 
 				; distance threshold (tiles)
-				MaxDist := 9
+				MaxDist := 5
 				MaxDistSq := MaxDist * MaxDist
 
 				dx := playerGameCoords[1] - StartingPointNode.WorldCoordinates[1]
@@ -645,7 +645,7 @@ SlimeLeveling(myGUI, Duration)
 							StartingPointNode.MoveToLocation()
 					}
 							
-					NextRandomBehaviorTime := A_TickCount + Random(5000,12000)
+					NextRandomBehaviorTime := A_TickCount + Random(5000,10000)
 				}
 
 				if (A_TickCount > StopTime) {
