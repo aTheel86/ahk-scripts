@@ -545,8 +545,9 @@ BeginSlimeLeveling()
 
 SlimeLeveling(myGUI, Duration)
 {
-    global stopFlag 
+    global stopFlag
 
+	stopFlag := false
 	myGui.Destroy()
 
 	StopTime := A_TickCount + (Duration * 60 * 1000)
@@ -568,10 +569,21 @@ SlimeLeveling(myGUI, Duration)
 
 		Loop {
 			i := 0
+
+			if (stopFlag) {
+				stopFlag := false
+				Break
+			}
+
 			EnemyCoords := FindAdjacentEnemy()
 			if (EnemyCoords) {
 				Send("{RButton down}")
 				Loop {
+					if (stopFlag) {
+						stopFlag := false
+						Break
+					}
+
 					i++
 					if (i > 20) {
 						Send("{Alt down}")
@@ -588,6 +600,11 @@ SlimeLeveling(myGUI, Duration)
 			}
 			else {
 				MouseMove CenterX, CenterY
+
+				if (stopFlag) {
+					stopFlag := false
+					Break
+				}
 
 				RandomCoords := [0,0]
 				UpdatePlayerCoords()
@@ -654,11 +671,6 @@ SlimeLeveling(myGUI, Duration)
 					CastRecall()
 					Break
 				}
-			}
-		
-			if (stopFlag) {
-				stopFlag := false
-				Break
 			}
 		}
 
