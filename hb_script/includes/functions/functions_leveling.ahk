@@ -131,11 +131,10 @@ FindAdjacentEnemy()
 
 	; Check each adjacent square for pixel changes
 	for square in AdjacentSquares {
-		MouseMove square[1], square[2], 0
+		MouseMove(square[1], square[2], 0)
 		Sleep 2
 
-		if (CanAttackCoord(square[1], square[2]))
-		{
+		if (CanAttackCoord(square)) {
 			Coords := [square[1], square[2]]
 			return Coords
 		}
@@ -143,9 +142,9 @@ FindAdjacentEnemy()
 	return false
 }
 
-CanAttackCoord(x, y)
+CanAttackCoord(square)
 {
-	Offsets := [PixelGetColor(x + 1, y + 1, "RGB"), PixelGetColor(x + 1, y + 2, "RGB"), PixelGetColor(x + 2, y + 1, "RGB"), PixelGetColor(x + 2, y + 2, "RGB")]
+	Offsets := [PixelGetColor(square[1] + 1, square[2] + 1, "RGB"), PixelGetColor(square[1] + 1, square[2] + 2, "RGB"), PixelGetColor(square[1] + 2, square[2] + 1, "RGB"), PixelGetColor(square[1] + 2, square[2] + 2, "RGB")]
 
 	if (Offsets[1] == "0xF7F7F7" && Offsets[2] == "0xEFEFEF" && Offsets[3] == "0xFFFFFF" && Offsets[4] == "0xEFEFEF") {
 		return true
@@ -194,7 +193,7 @@ FindAndMove(distance := 3) {
 		MouseMove coord[1], coord[2], 0
 		Sleep 2
 
-		if (CanAttackCoord(coord[1], coord[2])) {
+		if (CanAttackCoord(coord)) {
 			MouseClick("L", coord[1], coord[2])
 			Sleep 200
             MouseMove CenterX, CenterY
@@ -407,9 +406,9 @@ LookBackAndForth() {
 	Loop Random(1,3)
 	{
 		MouseClick("R", CenterX - SquarePercentageX, CenterY, , 0)
-		Sleep Random(25,150)
+		Sleep Random(250,400)
 		MouseClick("R", CenterX + SquarePercentageX, CenterY, , 0)
-		Sleep Random(25,75)
+		Sleep Random(180,500)
 	}
 	Sleep 10
 }
@@ -473,7 +472,7 @@ BasicLeveling(myGUI, Duration)
 						break
 					}
 					Sleep 100
-				} Until !CanAttackCoord(EnemyCoords[1], EnemyCoords[2])
+				} Until !CanAttackCoord(EnemyCoords)
 				Send("{Alt up}")
 				Send("{RButton up}")
 				dist := 2
@@ -585,6 +584,22 @@ SlimeLeveling(myGUI, Duration)
 					}
 
 					i++
+					if (i > 10) {
+						if (EnemyCoords == directions.RightDown && CanAttackCoord(directions.Right)) {
+							EnemyCoords := directions.Right
+						}
+
+						if (EnemyCoords == directions.LeftDown && CanAttackCoord(directions.Left)) {
+							EnemyCoords := directions.Left
+						}
+
+						CenterTarget := [CenterX, CenterY]
+
+						if (EnemyCoords == directions.Down && CanAttackCoord(CenterTarget)) {
+							EnemyCoords := CenterTarget
+						}
+					}
+
 					if (i > 20) {
 						Send("{Alt down}")
 					}
@@ -593,7 +608,7 @@ SlimeLeveling(myGUI, Duration)
 						break
 					}
 					Sleep 100
-				} Until !CanAttackCoord(EnemyCoords[1], EnemyCoords[2])
+				} Until !CanAttackCoord(EnemyCoords)
 				Send("{Alt up}")
 				Send("{RButton up}")
 				LastAttackTime := A_TickCount
