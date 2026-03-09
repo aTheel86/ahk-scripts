@@ -866,7 +866,7 @@ ClearEnemies() {
                 break
             }
             Sleep 100
-        } Until !CanAttackCoord(EnemyCoords[1], EnemyCoords[2])
+        } Until !CanAttackCoord(EnemyCoords)
         Send("{Alt up}")
         Send("{RButton up}")
         MouseMove(CenterX, CenterY, 0)
