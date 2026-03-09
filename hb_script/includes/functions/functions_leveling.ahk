@@ -126,17 +126,20 @@ CheckPixelMovement(x, y) {
 
 FindAdjacentEnemy()
 {
+	Global stopFlag
+
 	AdjacentSquares := [directions.RightDown, directions.LeftDown, directions.LeftUp, directions.RightUp, directions.Up, directions.Down, directions.Left, directions.Right]
 	RandomizeArray(&AdjacentSquares) ; Shuffle the AdjacentSquares array to randomize iteration order
 
 	; Check each adjacent square for pixel changes
 	for square in AdjacentSquares {
-		MouseMove(square[1], square[2], 0)
-		Sleep 2
+		if (stopFlag) {
+			stopFlag := false
+			return false
+		}
 
 		if (CanAttackCoord(square)) {
-			Coords := [square[1], square[2]]
-			return Coords
+			return square
 		}
 	}
 	return false
@@ -144,6 +147,9 @@ FindAdjacentEnemy()
 
 CanAttackCoord(square)
 {
+	MouseMove(square[1], square[2], 0)
+	Sleep 2
+
 	Offsets := [PixelGetColor(square[1] + 1, square[2] + 1, "RGB"), PixelGetColor(square[1] + 1, square[2] + 2, "RGB"), PixelGetColor(square[1] + 2, square[2] + 1, "RGB"), PixelGetColor(square[1] + 2, square[2] + 2, "RGB")]
 
 	if (Offsets[1] == "0xF7F7F7" && Offsets[2] == "0xEFEFEF" && Offsets[3] == "0xFFFFFF" && Offsets[4] == "0xEFEFEF") {
@@ -584,23 +590,24 @@ SlimeLeveling(myGUI, Duration)
 					}
 
 					i++
-					if (i > 10) {
+					if (i > 10 && i < 25) {
 						if (EnemyCoords == directions.RightDown && CanAttackCoord(directions.Right)) {
 							EnemyCoords := directions.Right
+						}
+
+						CenterTarget := [CenterX, CenterY]
+						if (EnemyCoords == directions.Down && CanAttackCoord(CenterTarget)) {
+							EnemyCoords := CenterTarget
 						}
 
 						if (EnemyCoords == directions.LeftDown && CanAttackCoord(directions.Left)) {
 							EnemyCoords := directions.Left
 						}
 
-						CenterTarget := [CenterX, CenterY]
-
-						if (EnemyCoords == directions.Down && CanAttackCoord(CenterTarget)) {
-							EnemyCoords := CenterTarget
-						}
+						MouseMove(EnemyCoords[1], EnemyCoords[2], 0)
 					}
 
-					if (i > 20) {
+					if (i > 25) {
 						Send("{Alt down}")
 					}
 
